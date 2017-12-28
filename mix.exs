@@ -1,9 +1,9 @@
-defmodule Renaissance.Mixfile do
+defmodule Lykan.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app:              :renaissance,
+      app:              :lykan,
       version:          "0.1.0",
       elixir:           "~> 1.5",
       start_permanent:  Mix.env == :prod,
@@ -14,7 +14,7 @@ defmodule Renaissance.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Renaissance, []},
+      mod: {Lykan, []},
       extra_applications: [
         :logger,
         :lkn_core,

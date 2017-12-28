@@ -1,4 +1,4 @@
-defmodule Renaissance.Config do
+defmodule Lykan.Config do
   @derive [Poison.Encoder]
   defstruct [
     :maps,

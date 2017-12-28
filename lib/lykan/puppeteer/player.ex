@@ -1,6 +1,6 @@
 use Lkn.Prelude
 
-defmodule Renaissance.Puppeteer.Player do
+defmodule Lykan.Puppeteer.Player do
   defmodule Info do
     @moduledoc false
 
@@ -35,7 +35,7 @@ defmodule Renaissance.Puppeteer.Player do
     end
   end
 
-  use Renaissance.Puppeteer do
+  use Lykan.Puppeteer do
     cast goto(map_key :: Lkn.Core.Map.k) do
       instance_key = Lkn.Core.Pool.register_puppeteer(map_key, key, __MODULE__)
 

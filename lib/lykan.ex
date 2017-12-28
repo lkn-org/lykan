@@ -1,4 +1,4 @@
-defmodule Renaissance do
+defmodule Lykan do
   import Supervisor.Spec
 
   defmodule Connect do
@@ -6,9 +6,9 @@ defmodule Renaissance do
 
     def server(port) do
       # setup a set of maps from a config file
-      conf = Renaissance.Config.from_file!("renaissance.json")
+      conf = Lykan.Config.from_file!("lykan.json")
       Enum.map(conf.maps, fn m ->
-          Renaissance.Map.start_link(m, "blue")
+          Lykan.Map.start_link(m, "blue")
           Lkn.Core.Pool.spawn_pool(m)
         end)
 
@@ -29,13 +29,13 @@ defmodule Renaissance do
 
       # spawn a player puppeteer and find an instance
       puppeteer_key = UUID.uuid4()
-      Renaissance.Puppeteer.Player.start_link(puppeteer_key, client)
-      instance_key = Renaissance.Puppeteer.Player.goto(puppeteer_key, map_key)
+      Lykan.Puppeteer.Player.start_link(puppeteer_key, client)
+      instance_key = Lykan.Puppeteer.Player.goto(puppeteer_key, map_key)
 
       # spawn a character for this puppeteer
       chara_key = UUID.uuid4()
-      Renaissance.Character.start_link(chara_key)
-      Renaissance.Puppeteer.Player.assign_puppet(puppeteer_key, chara_key)
+      Lykan.Character.start_link(chara_key)
+      Lykan.Puppeteer.Player.assign_puppet(puppeteer_key, chara_key)
 
       recv(puppeteer_key, client)
     end
@@ -47,23 +47,23 @@ defmodule Renaissance do
 
           recv(puppeteer_key, client)
         _ ->
-          Renaissance.Puppeteer.Player.kill(puppeteer_key)
+          Lykan.Puppeteer.Player.kill(puppeteer_key)
       end
     end
 
     defp task(lambda) do
-      Task.Supervisor.start_child(Renaissance.Tasks, lambda)
+      Task.Supervisor.start_child(Lykan.Tasks, lambda)
     end
   end
 
   def start(_type, _args) do
     children = [
-      supervisor(Task.Supervisor, [[name: Renaissance.Tasks]], restart: :transient),
+      supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),
       worker(Task, [Connect, :server, [4000]], restart: :transient),
     ]
 
     Supervisor.start_link(children,
       strategy: :one_for_one,
-      name: Renaissance)
+      name: Lykan)
   end
 end

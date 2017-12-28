@@ -1,9 +1,9 @@
 use Lkn.Prelude
 import Lkn.Core.Puppet, only: [defpuppet: 2]
 
-defpuppet Renaissance.Character do
+defpuppet Lykan.Character do
   defmodule Appearance do
-    use Renaissance.System.Appearance.Component
+    use Lykan.System.Appearance.Component
 
     def set_color(key, c, no_state) do
       write(key, :color, c)

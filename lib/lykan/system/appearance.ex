@@ -2,9 +2,9 @@ use Lkn.Prelude
 import Lkn.Core.System, only: [defsystem: 2]
 import Lkn.Core.Component, only: [defcomponent: 2]
 
-defsystem Renaissance.System.Appearance do
+defsystem Lykan.System.Appearance do
   defcomponent Component do
-    @system Renaissance.System.Appearance
+    @system Lykan.System.Appearance
 
     @call get_color() :: String.t
     @cast set_color(c :: String.t)
@@ -21,7 +21,7 @@ defsystem Renaissance.System.Appearance do
     c = Component.get_color(map_key)
     Component.set_color(key, c)
 
-    notify(&(Renaissance.Puppeteer.puppet_color(&1, key, c)))
+    notify(&(Lykan.Puppeteer.puppet_color(&1, key, c)))
     :ok
   end
 
@@ -31,7 +31,7 @@ defsystem Renaissance.System.Appearance do
 
   cast change_puppet_color(key :: Lkn.Core.Puppet.k, c :: String.t) do
     Component.set_color(key, c)
-    notify(&(Renaissance.Puppeteer.puppet_color(&1, key, c)))
+    notify(&(Lykan.Puppeteer.puppet_color(&1, key, c)))
 
     state
   end

@@ -1,9 +1,9 @@
 use Lkn.Prelude
 import Lkn.Core.Map, only: [defmap: 2]
 
-defmap Renaissance.Map do
+defmap Lykan.Map do
   defmodule Appearance do
-    use Renaissance.System.Appearance.Component
+    use Lykan.System.Appearance.Component
 
     def set_color(key, c, _state) do
       c
