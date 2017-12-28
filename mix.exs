@@ -14,6 +14,7 @@ defmodule Renaissance.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {Renaissance, []},
       extra_applications: [
         :logger,
         :lkn_core,
@@ -28,9 +29,10 @@ defmodule Renaissance.Mixfile do
       {:lkn_core, "~> 0.1.0"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
+      {:socket, "~> 0.3"},
 
       # development
-       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
     ]
   end
 end
