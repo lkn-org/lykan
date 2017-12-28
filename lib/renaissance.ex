@@ -28,14 +28,12 @@ defmodule Renaissance do
       # spawn a player puppeteer and find an instance
       puppeteer_key = UUID.uuid4()
       Renaissance.Puppeteer.Player.start_link(puppeteer_key, client)
-      instance_key = Lkn.Core.Puppeteer.find_instance(puppeteer_key, map_key)
+      instance_key = Renaissance.Puppeteer.Player.goto(puppeteer_key, map_key)
 
       # spawn a character for this puppeteer
       chara_key = UUID.uuid4()
       Renaissance.Character.start_link(chara_key)
-
-      # register the character to the instance
-      Lkn.Core.Instance.register_puppet(instance_key, chara_key)
+      Renaissance.Puppeteer.Player.assign_puppet(puppeteer_key, chara_key)
 
       recv(puppeteer_key, client)
     end
@@ -47,7 +45,7 @@ defmodule Renaissance do
 
           recv(puppeteer_key, client)
         _ ->
-          IO.puts "Something went wrong, but we cannot kill a puppeteer just yet"
+          Renaissance.Puppeteer.Player.kill(puppeteer_key)
       end
     end
 
