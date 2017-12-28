@@ -5,14 +5,16 @@ defmodule Renaissance do
     alias Socket.Web
 
     def server(port) do
-      # setup the bare minimum for one map
-      map_key = UUID.uuid4()
-      Renaissance.Map.start_link(map_key, "blue")
-      Lkn.Core.Pool.spawn_pool(map_key)
+      # setup a set of maps from a config file
+      conf = Renaissance.Config.from_file!("renaissance.json")
+      Enum.map(conf.maps, fn m ->
+          Renaissance.Map.start_link(m, "blue")
+          Lkn.Core.Pool.spawn_pool(m)
+        end)
 
       # listen for incoming connection
       server = Web.listen!(port)
-      loop_acceptor(server, map_key)
+      loop_acceptor(server, conf.default_map)
     end
 
     defp loop_acceptor(server, map_key) do

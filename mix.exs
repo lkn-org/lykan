@@ -30,6 +30,7 @@ defmodule Renaissance.Mixfile do
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
       {:socket, "~> 0.3"},
+      {:poison, "~> 3.1.0"},
 
       # development
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
