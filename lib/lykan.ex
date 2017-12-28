@@ -34,7 +34,7 @@ defmodule Lykan do
 
       # spawn a character for this puppeteer
       chara_key = UUID.uuid4()
-      Lykan.Character.start_link(chara_key)
+      Lykan.Character.spawn(chara_key)
       Lykan.Puppeteer.Player.assign_puppet(puppeteer_key, chara_key)
 
       recv(puppeteer_key, client)
@@ -59,6 +59,7 @@ defmodule Lykan do
   def start(_type, _args) do
     children = [
       supervisor(Lykan.Map.Sup, [], restart: :transient),
+      supervisor(Lykan.Character.Sup, [], restart: :transient),
       supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),
       worker(Task, [Connect, :server, [4000]], restart: :transient),
     ]
