@@ -35,4 +35,24 @@ defmap Lykan.Map do
       :default_color => c,
      }
   end
+
+  defmodule Sup do
+    use Supervisor
+
+    def start_link do
+      Supervisor.start_link(__MODULE__, :no_arg, name: __MODULE__)
+    end
+
+    def init(_no_arg) do
+      children = [
+        supervisor(Lykan.Map, [], restart: :transient)
+      ]
+
+      Supervisor.init(children, strategy: :simple_one_for_one)
+    end
+  end
+
+    def spawn(map_key, color) do
+      Supervisor.start_child(Lykan.Map.Sup, [map_key, color])
+    end
 end

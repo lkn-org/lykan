@@ -8,7 +8,7 @@ defmodule Lykan do
       # setup a set of maps from a config file
       conf = Lykan.Config.from_file!("lykan.json")
       Enum.map(conf.maps, fn m ->
-          Lykan.Map.start_link(m, "blue")
+          Lykan.Map.spawn(m, "blue")
           Lkn.Core.Pool.spawn_pool(m)
         end)
 
@@ -58,6 +58,7 @@ defmodule Lykan do
 
   def start(_type, _args) do
     children = [
+      supervisor(Lykan.Map.Sup, [], restart: :transient),
       supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),
       worker(Task, [Connect, :server, [4000]], restart: :transient),
     ]
