@@ -72,7 +72,7 @@ defmap Lykan.Map do
     end
   end
 
-    def spawn(map_key, color) do
-      Supervisor.start_child(Lykan.Map.Sup, [map_key, color])
-    end
+  def spawn(map_key, color) do
+    Supervisor.start_child(Lykan.Map.Sup, [map_key, color])
+  end
 end
