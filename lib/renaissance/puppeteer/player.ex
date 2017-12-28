@@ -17,7 +17,7 @@ defmodule Renaissance.Puppeteer.Player do
   end
 
   def puppet_color(_key, puppet, c, socket) do
-    IO.puts "[Puppet(#{inspect puppet})] new color is #{c}"
+    Socket.Web.send! socket, {:text, "[Puppet(#{inspect puppet})] new color is #{c}"}
     socket
   end
 end
