@@ -47,7 +47,7 @@ defmodule Lykan do
 
           recv(puppeteer_key, client)
         _ ->
-          Lykan.Puppeteer.Player.kill(puppeteer_key)
+          Lkn.Core.Puppeteer.stop(puppeteer_key)
       end
     end
 

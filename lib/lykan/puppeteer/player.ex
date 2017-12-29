@@ -29,19 +29,6 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   use Lykan.Puppeteer do
-    cast kill() do
-      case instance_key do
-        Option.some(instance) ->
-          Enum.map(state.puppets, fn puppet ->
-                Lkn.Core.Instance.unregister_puppet(instance, puppet)
-                Lkn.Core.Entity.stop(puppet)
-          end)
-          Lkn.Core.Instance.unregister_puppeteer(instance, key)
-        _ -> :ok
-      end
-      state
-    end
-
     cast assign_puppet(puppet_key :: Lkn.Core.Puppet.k) do
       Info.add_puppet(state, instance_key, puppet_key)
     end
