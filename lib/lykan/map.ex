@@ -36,6 +36,14 @@ defmap Lykan.Map do
      }
   end
 
+  def digest(_entity) do
+    %{}
+  end
+
+  def destroy(_puppet_key, _puppet, _reason) do
+    :ok
+  end
+
   defmodule Sup do
     use Supervisor
 

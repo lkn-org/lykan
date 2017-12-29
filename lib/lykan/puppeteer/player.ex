@@ -14,18 +14,11 @@ defmodule Lykan.Puppeteer.Player do
       %__MODULE__{
         socket: socket,
         puppets: [],
-        instance: Option.nothing(),
       }
     end
 
-    def set_instance(state, instance) do
-      Enum.map(state.puppets, &(Lkn.Core.Instance.register_puppet(instance, &1)))
-
-      %Info{state|instance: Option.some(instance)}
-    end
-
-    def add_puppet(state, puppet) do
-      case state.instance do
+    def add_puppet(state, instance_key, puppet) do
+      case instance_key do
         Option.some(instance) ->
           Lkn.Core.Instance.register_puppet(instance, puppet)
         _ -> :ok
@@ -36,16 +29,13 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   use Lykan.Puppeteer do
-    cast goto(map_key :: Lkn.Core.Map.k) do
-      instance_key = Lkn.Core.Pool.register_puppeteer(map_key, key, __MODULE__)
-
-      Info.set_instance(state, instance_key)
-    end
-
     cast kill() do
-      case state.instance do
+      case instance_key do
         Option.some(instance) ->
-          Enum.map(state.puppets, &(Lkn.Core.Instance.unregister_puppet(instance, &1)))
+          Enum.map(state.puppets, fn puppet ->
+                Lkn.Core.Instance.unregister_puppet(instance, puppet)
+                Lkn.Core.Entity.stop(puppet)
+          end)
           Lkn.Core.Instance.unregister_puppeteer(instance, key)
         _ -> :ok
       end
@@ -53,7 +43,7 @@ defmodule Lykan.Puppeteer.Player do
     end
 
     cast assign_puppet(puppet_key :: Lkn.Core.Puppet.k) do
-      Info.add_puppet(state, puppet_key)
+      Info.add_puppet(state, instance_key, puppet_key)
     end
   end
 
@@ -69,7 +59,15 @@ defmodule Lykan.Puppeteer.Player do
     state
   end
 
-  def puppet_color(_key, puppet, c, state) do
+  def puppet_enter(state, _instance_key, _puppet_key, _digest) do
+    state
+  end
+
+  def puppet_leave(state, _instance_key, _puppet_key) do
+    state
+  end
+
+  def puppet_color(_key, puppet, c, _instance_key, state) do
     Socket.Web.send! state.socket, {:text, "[Puppet(#{inspect puppet})] new color is #{c}"}
     state
   end
