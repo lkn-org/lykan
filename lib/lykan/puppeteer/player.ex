@@ -46,11 +46,19 @@ defmodule Lykan.Puppeteer.Player do
     state
   end
 
-  def puppet_enter(state, _instance_key, _puppet_key, _digest) do
+  def puppet_enter(state, _instance_key, puppet_key, digest) do
+    Socket.Web.send!(
+      state.socket,
+      {:text, "[Puppet(#{inspect puppet_key})] enters, digest is #{inspect digest}"}
+    )
     state
   end
 
-  def puppet_leave(state, _instance_key, _puppet_key) do
+  def puppet_leave(state, _instance_key, puppet_key) do
+    Socket.Web.send!(
+      state.socket,
+      {:text, "[Puppet(#{inspect puppet_key})] leaves"}
+    )
     state
   end
 
