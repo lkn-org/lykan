@@ -61,4 +61,29 @@ defmodule Lykan.Puppeteer.Player do
   def puppet_color(_key, puppet, c, _instance_key, state) do
     state
   end
+
+  def instance_digest(state, instance_key, map_key, map, puppets) do
+    Socket.Web.send! state.socket, {
+      :text,
+      "[Instance(#{inspect instance_key})] for [Map(#{inspect map_key})]: #{inspect map} puppets: #{inspect puppets}"
+    }
+    state
+  end
+
+  def destroy(key, state, Option.some(instance_key), reason) do
+    # we leave the instance in a clean way
+    Enum.map(state.puppets, fn puppet ->
+      Lkn.Core.Instance.unregister_puppet(instance_key, puppet)
+    end)
+
+    Lkn.Core.Instance.unregister_puppeteer(instance_key, key)
+
+    destroy(key, state, Option.nothing(), reason)
+  end
+  def destroy(key, state, _none, _reason) do
+    # we kill our puppets
+    Enum.map(state.puppets, fn puppet ->
+      Lkn.Core.Entity.stop(puppet)
+    end)
+  end
 end
