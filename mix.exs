@@ -26,7 +26,7 @@ defmodule Lykan.Mixfile do
   defp deps do
     [
       {:uuid, "~> 1.1"},
-      {:lkn_core, "~> 0.2.0"},
+      {:lkn_core, "~> 0.3.0"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
       {:socket, "~> 0.3"},
