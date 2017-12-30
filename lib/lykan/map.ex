@@ -2,11 +2,23 @@ use Lkn.Prelude
 import Lkn.Core.Map, only: [defmap: 2]
 
 defmap Lykan.Map do
+  defmodule World do
+    use Lykan.System.Physics.World
+
+    def boundaries(key, :no_state) do
+      {{100, 100}, :no_state}
+    end
+
+    def init_state(_key) do
+      {:ok, :no_state}
+    end
+  end
+
   defmodule Appearance do
     use Lykan.System.Appearance.Component
 
-    def set_color(key, c, _state) do
-      c
+    def set_color(key, new_color, _c) do
+      new_color
     end
 
     def get_color(key, c) do
@@ -20,7 +32,7 @@ defmap Lykan.Map do
     end
   end
 
-  @components [Appearance]
+  @components [Appearance, World]
 
   def start_link(key, c) do
     Lkn.Core.Entity.start_link(__MODULE__, key, c)
@@ -31,13 +43,13 @@ defmap Lykan.Map do
     # last player left
     %{
       :delay => 1000,
-      :limit => 5,
+      :limit => 2,
       :default_color => c,
      }
   end
 
-  def digest(_entity) do
-    %{}
+  def digest(props) do
+    Map.drop(props, [:delay, :limit])
   end
 
   def destroy(_puppet_key, _puppet, _reason) do

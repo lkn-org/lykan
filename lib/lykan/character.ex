@@ -2,6 +2,30 @@ use Lkn.Prelude
 import Lkn.Core.Puppet, only: [defpuppet: 2]
 
 defpuppet Lykan.Character do
+  defmodule Body do
+    use Lykan.System.Physics.Body
+
+    def init_state(_key) do
+      {:ok, {:up, 50, 50}}
+    end
+
+    def get_position(_key, s = {_, x, y}) do
+      {{x, y}, s}
+    end
+
+    def set_position(_key, {x, y}, {dir, _, _}) do
+      {dir, x, y}
+    end
+
+    def get_direction(_key, s = {dir, _, _}) do
+      {dir, s}
+    end
+
+    def set_direction(_key, dir, {_, x, y}) do
+      {dir, x, y}
+    end
+  end
+
   defmodule Appearance do
     use Lykan.System.Appearance.Component
 
@@ -20,7 +44,7 @@ defpuppet Lykan.Character do
     end
   end
 
-  @components [Appearance]
+  @components [Appearance, Body]
 
   def start_link(key) do
     Lkn.Core.Entity.start_link(__MODULE__, key, :no_args)
@@ -32,8 +56,8 @@ defpuppet Lykan.Character do
     }
   end
 
-  def digest(_entity) do
-    %{}
+  def digest(props) do
+    Map.drop(props, [:module])
   end
 
   def destroy(_puppet_key, _puppet, _reason) do

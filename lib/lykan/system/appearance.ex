@@ -21,7 +21,7 @@ defsystem Lykan.System.Appearance do
     c = Component.get_color(map_key)
     Component.set_color(key, c)
 
-    notify(&(Lykan.Puppeteer.puppet_color(&1, key, c)))
+    notify(&Lykan.Puppeteer.notify(&1, {:puppet_color, key, c}))
     :ok
   end
 
@@ -31,7 +31,8 @@ defsystem Lykan.System.Appearance do
 
   cast change_puppet_color(key :: Lkn.Core.Puppet.k, c :: String.t) do
     Component.set_color(key, c)
-    notify(&(Lykan.Puppeteer.puppet_color(&1, key, c)))
+
+    notify(&Lykan.Puppeteer.notify(&1, {:puppet_color, key, c}))
 
     state
   end
