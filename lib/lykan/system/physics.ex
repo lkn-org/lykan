@@ -41,45 +41,55 @@ defsystem Lykan.System.Physics do
 
   #############################################################################
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
-    {:ok, beac} = Beacon.start(instance_key)
-    beac |> Beacon.set_periodic_callback(300, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
-         |> Beacon.enable()
+    if MapSet.member?(puppets, puppet_key) do
+      {:ok, beac} = Beacon.start(instance_key)
+      beac |> Beacon.set_periodic_callback(300, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
+      |> Beacon.enable()
 
-    dir = Body.get_direction(puppet_key)
-    pos = Body.get_position(puppet_key)
+      dir = Body.get_direction(puppet_key)
+      pos = Body.get_position(puppet_key)
 
-    notify(&Lykan.Puppeteer.notify(&1, {:puppet_starts_moving, puppet_key, dir, pos}))
+      notify(&Lykan.Puppeteer.notify(&1, {:puppet_starts_moving, puppet_key, dir, pos}))
 
-    Map.put(state, puppet_key, beac)
+      Map.put(state, puppet_key, beac)
+    else
+      state
+    end
   end
 
   cast puppet_moves(puppet_key :: Lkn.Core.Puppet.k) do
-    dir = Body.get_direction(puppet_key)
-    pos = Body.get_position(puppet_key)
-    bound = World.boundaries(map_key)
+    if MapSet.member?(puppets, puppet_key) do
+      dir = Body.get_direction(puppet_key)
+      pos = Body.get_position(puppet_key)
+      bound = World.boundaries(map_key)
 
-    pos = moves(pos, bound, dir)
+      pos = moves(pos, bound, dir)
 
-    Body.set_position(puppet_key, pos)
+      Body.set_position(puppet_key, pos)
 
-    notify(&Lykan.Puppeteer.notify(&1, {:puppet_moves, puppet_key, dir, pos}))
+      notify(&Lykan.Puppeteer.notify(&1, {:puppet_moves, puppet_key, dir, pos}))
+    end
 
     state
   end
 
   cast puppet_stops_moving(puppet_key :: Lkn.Core.Puppet.k) do
-    case Map.fetch(state, puppet_key) do
-      {:ok, beac} ->
-        Beacon.cancel(beac)
+    if MapSet.member?(puppets, puppet_key) do
+      case Map.fetch(state, puppet_key) do
+        {:ok, beac} ->
+          Beacon.cancel(beac)
 
-        pos = Body.get_position(puppet_key)
-        dir = Body.get_direction(puppet_key)
+          pos = Body.get_position(puppet_key)
+          dir = Body.get_direction(puppet_key)
 
-        notify(&Lykan.Puppeteer.notify(&1, {:puppet_stops_moving, puppet_key, pos}))
+          notify(&Lykan.Puppeteer.notify(&1, {:puppet_stops_moving, puppet_key, pos}))
 
-        Map.delete(state, puppet_key)
-      _ ->
-        state
+          Map.delete(state, puppet_key)
+        _ ->
+          state
+      end
+    else
+      state
     end
   end
 
