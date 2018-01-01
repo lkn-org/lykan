@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <canvas id="client" width="500" height="500">
+    </canvas>
+  </body>
+  <script type="text/javascript">
+    window.onload = function() {
+
+    var ws = new WebSocket("ws://127.0.0.1:4000");
+
+    var canvas = document.getElementById("client")
+
+    var map_width = 0;
+    var map_height = 0;
+
+    var puppets = {};
+
+    ws.onmessage = function (event) {
+      console.log(event.data);
+      var data = JSON.parse(event.data);
+      var opcode = data.opcode;
+      var message = data.message;
+
+      switch(opcode) {
+        case "INSTANCE_DIGEST":
+          map_width = message.map.digest.width;
+          map_height = message.map.digest.height;
+          puppets = message.puppets;
+          break;
+        case "PUPPET_ENTERS":
+          puppets[message.puppet_key] = message.digest;
+          break;
+        case "PUPPET_LEAVES":
+          delete puppets[message.puppet_key];
+          break;
+        case "PUPPET_MOVES":
+          puppets[message.puppet_key].x = message.position.x;
+          puppets[message.puppet_key].y = message.position.y;
+          break;
+      }
+
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, map_width, map_height);
+
+      for (var puppet in puppets) {
+        ctx.fillStyle = puppets[puppet].color;
+        ctx.fillRect(puppets[puppet].x, puppets[puppet].y, 2, 2);
+      }
+    }
+
+    var keyDown = function (event) {
+      ws.send("MOVE");
+    }
+
+    var keyUp = function (event) {
+      ws.send("STOP");
+    }
+
+    window.addEventListener("keydown", keyDown, false);
+    window.addEventListener("keyup", keyUp, false);
+
+    };
+  </script>
+</html>
