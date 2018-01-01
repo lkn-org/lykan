@@ -1,4 +1,5 @@
 use Lkn.Prelude
+
 import Lkn.Core.Puppet, only: [defpuppet: 2]
 
 defpuppet Lykan.Character do
@@ -6,23 +7,29 @@ defpuppet Lykan.Character do
     use Lykan.System.Physics.Body
 
     def init_state(_key) do
-      {:ok, {:up, 50, 50}}
+      {:ok, :down}
     end
 
-    def get_position(_key, s = {_, x, y}) do
-      {Lykan.System.Physics.Position.new(x, y), s}
+    def get_position(key, dir) do
+      Option.some(x) = read(key, :x)
+      Option.some(y) = read(key, :y)
+
+      {Lykan.System.Physics.Position.new(x, y), dir}
     end
 
-    def set_position(_key, pos, {dir, _, _}) do
-      {dir, pos.x, pos.y}
+    def set_position(key, pos, dir) do
+      write(key, :x, pos.x)
+      write(key, :y, pos.y)
+
+      dir
     end
 
-    def get_direction(_key, s = {dir, _, _}) do
-      {dir, s}
+    def get_direction(_key, dir) do
+      {dir, dir}
     end
 
-    def set_direction(_key, dir, {_, x, y}) do
-      {dir, x, y}
+    def set_direction(_key, dir, _) do
+      dir
     end
   end
 
@@ -39,7 +46,7 @@ defpuppet Lykan.Character do
       {c, no_state}
     end
 
-    def init_state(key) do
+    def init_state(_key) do
       {:ok, :no_state}
     end
   end
@@ -52,7 +59,9 @@ defpuppet Lykan.Character do
 
   def init_properties(_no_args) do
     %{
-      :color => "black"
+      :color => "black",
+      :x => 50,
+      :y => 50,
     }
   end
 
