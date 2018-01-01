@@ -21,13 +21,6 @@ defsystem Lykan.System.Appearance do
       :puppet_key,
       :color,
     ]
-
-    def new(key, new_color) do
-      %ColorChange{
-        puppet_key: key,
-        color: new_color,
-      }
-    end
   end
 
   def init_state(_instance_key, _map_key) do
@@ -38,7 +31,7 @@ defsystem Lykan.System.Appearance do
     c = Component.get_color(map_key)
     Component.set_color(key, c)
 
-    notify(&Lykan.Puppeteer.notify(&1, ColorChange.new(key, c)))
+    notify(&Lykan.Puppeteer.notify(&1, ColorChange.craft(key, c)))
 
     :ok
   end
@@ -50,7 +43,7 @@ defsystem Lykan.System.Appearance do
   cast change_puppet_color(key :: Lkn.Core.Puppet.k, c :: String.t) do
     Component.set_color(key, c)
 
-    notify(&Lykan.Puppeteer.notify(&1, ColorChange.new(key, c)))
+    notify(&Lykan.Puppeteer.notify(&1, ColorChange.craft(key, c)))
 
     :ok
   end

@@ -23,8 +23,8 @@ defsystem Lykan.System.Physics do
         y: y,
       }
     end
-
   end
+
   @type direction :: :up | :down | :right | :left
 
   defcomponent Body do
@@ -56,14 +56,6 @@ defsystem Lykan.System.Physics do
       :direction,
       :position,
     ]
-
-    def new(puppet_key, direction, position) do
-      %PuppetStarts{
-        puppet_key: puppet_key,
-        direction: direction,
-        position: position,
-      }
-    end
   end
 
   defmessage PuppetMoves do
@@ -74,14 +66,6 @@ defsystem Lykan.System.Physics do
       :direction,
       :position,
     ]
-
-    def new(puppet_key, direction, position) do
-      %PuppetMoves{
-        puppet_key: puppet_key,
-        direction: direction,
-        position: position,
-      }
-    end
   end
 
   defmessage PuppetStops do
@@ -91,13 +75,6 @@ defsystem Lykan.System.Physics do
       :puppet_key,
       :position,
     ]
-
-    def new(puppet_key, position) do
-      %PuppetStarts{
-        puppet_key: puppet_key,
-        position: position,
-      }
-    end
   end
 
   #############################################################################
@@ -123,7 +100,7 @@ defsystem Lykan.System.Physics do
       dir = Body.get_direction(puppet_key)
       pos = Body.get_position(puppet_key)
 
-      notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.new(puppet_key, dir, pos)))
+      notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.craft(puppet_key, dir, pos)))
 
       Map.put(state, puppet_key, beac)
     else
@@ -141,7 +118,7 @@ defsystem Lykan.System.Physics do
 
       Body.set_position(puppet_key, pos)
 
-      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.new(puppet_key, dir, pos)))
+      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, dir, pos)))
     end
 
     state
@@ -156,7 +133,7 @@ defsystem Lykan.System.Physics do
           pos = Body.get_position(puppet_key)
           dir = Body.get_direction(puppet_key)
 
-          notify(&Lykan.Puppeteer.notify(&1, PuppetStops.new(puppet_key, pos)))
+          notify(&Lykan.Puppeteer.notify(&1, PuppetStops.craft(puppet_key, pos)))
 
           Map.delete(state, puppet_key)
         _ ->

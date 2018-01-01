@@ -35,13 +35,21 @@ defmodule Lykan.Message do
 
     {opcode, content, legit} = parse_block(block, Option.nothing(), Option.nothing(), [])
 
+    new_func = {:craft, [], Enum.map(content, &{&1, [], nil})}
+    new_body = {:%, [], [name, {:%{}, [], Enum.map(content, &{&1, {&1, [], nil}})}]}
+
     quote do
       defmodule unquote(name) do
         @derive [Poison.Encoder]
         defstruct unquote(content)
 
+        def unquote(new_func) do
+          unquote(new_body)
+        end
+
         unquote(legit)
       end
+
       defimpl Lykan.Message.Protocol, for: unquote(name) do
         def opcode(_) do
           unquote(opcode)
