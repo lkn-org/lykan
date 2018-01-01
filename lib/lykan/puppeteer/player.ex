@@ -88,6 +88,26 @@ defmodule Lykan.Puppeteer.Player do
     state
   end
 
+  defp consume_cmd("UP", state, instance_key) do
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :up)
+    state
+  end
+
+  defp consume_cmd("DOWN", state, instance_key) do
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :down)
+    state
+  end
+
+  defp consume_cmd("RIGHT", state, instance_key) do
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :right)
+    state
+  end
+
+  defp consume_cmd("LEFT", state, instance_key) do
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :left)
+    state
+  end
+
   def leave_instance(state, _instance_key) do
     state
   end

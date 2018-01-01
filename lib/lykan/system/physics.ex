@@ -91,6 +91,11 @@ defsystem Lykan.System.Physics do
   end
 
   #############################################################################
+  cast puppet_changes_dir(puppet_key :: Lkn.Core.Puppet.k, dir :: direction) do
+    Body.set_direction(puppet_key, dir)
+    state
+  end
+
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
     if MapSet.member?(puppets, puppet_key) && !Map.has_key?(state, puppet_key) do
       {:ok, beac} = Beacon.start(instance_key)

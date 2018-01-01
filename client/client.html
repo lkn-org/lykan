@@ -50,16 +50,40 @@
 
       for (var puppet in puppets) {
         ctx.fillStyle = puppets[puppet].color;
-        ctx.fillRect(puppets[puppet].x, puppets[puppet].y, 2, 2);
+        ctx.fillRect(puppets[puppet].x, map_height - puppets[puppet].y, 2, 2);
       }
     }
 
     var keyDown = function (event) {
-      ws.send("MOVE");
+      switch(event.key) {
+        case "ArrowUp":
+          ws.send("UP");
+          ws.send("MOVE");
+          break;
+        case "ArrowDown":
+          ws.send("DOWN");
+          ws.send("MOVE");
+          break;
+        case "ArrowLeft":
+          ws.send("LEFT");
+          ws.send("MOVE");
+          break;
+        case "ArrowRight":
+          ws.send("RIGHT");
+          ws.send("MOVE");
+          break;
+      }
     }
 
     var keyUp = function (event) {
-      ws.send("STOP");
+      switch(event.key) {
+        case "ArrowUp":
+        case "ArrowDown":
+        case "ArrowLeft":
+        case "ArrowRight":
+          ws.send("STOP");
+          break;
+      }
     }
 
     window.addEventListener("keydown", keyDown, false);
