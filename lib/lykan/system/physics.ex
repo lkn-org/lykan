@@ -92,7 +92,7 @@ defsystem Lykan.System.Physics do
 
   #############################################################################
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
-    if MapSet.member?(puppets, puppet_key) do
+    if MapSet.member?(puppets, puppet_key) && !Map.has_key?(state, puppet_key) do
       {:ok, beac} = Beacon.start(instance_key)
       beac |> Beacon.set_periodic_callback(300, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
       |> Beacon.enable()
