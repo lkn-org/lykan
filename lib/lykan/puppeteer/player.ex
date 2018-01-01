@@ -62,8 +62,8 @@ defmodule Lykan.Puppeteer.Player do
     state
   end
 
-  def notify(_key, notification, _instance_key, state) do
-    Socket.Web.send! state.socket, {:text, inspect(notification) }
+  def notify(_key, msg, _instance_key, state) do
+    Socket.Web.send! state.socket, {:text, Lykan.Message.encode!(msg) }
     state
   end
   def puppet_color(_key, puppet, c, _instance_key, state) do

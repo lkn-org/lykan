@@ -2,10 +2,30 @@ use Lkn.Prelude
 
 import Lkn.Core.System, only: [defsystem: 2]
 import Lkn.Core.Component, only: [defcomponent: 2]
+import Lykan.Message, only: [defmessage: 2]
 
 defsystem Lykan.System.Physics do
+  defmodule Position do
+    defstruct [
+      :x,
+      :y,
+    ]
+
+    @type t :: %Position{
+      x: non_neg_integer,
+      y: non_neg_integer,
+    }
+
+    @spec new(x :: non_neg_integer, y :: non_neg_integer) :: t
+    def new(x, y) do
+      %Position{
+        x: x,
+        y: y,
+      }
+    end
+
+  end
   @type direction :: :up | :down | :right | :left
-  @type position :: {non_neg_integer, non_neg_integer}
 
   defcomponent Body do
     @system Lykan.System.Physics
@@ -13,8 +33,8 @@ defsystem Lykan.System.Physics do
     @call get_direction() :: Lykan.System.Physics.direction
     @cast set_direction(dir :: Lykan.System.Physics.direction)
 
-    @call get_position() :: Lkn.System.Physics.position
-    @cast set_position(pos :: Lkn.System.Physics.position)
+    @call get_position() :: Lkn.System.Physics.Position.t
+    @cast set_position(pos :: Lkn.System.Physics.Position.t)
   end
 
   defcomponent World do
@@ -25,6 +45,60 @@ defsystem Lykan.System.Physics do
 
   @map World
   @puppet Body
+
+  #############################################################################
+
+  defmessage PuppetStarts do
+    opcode "PUPPET_STARTS"
+
+    content [
+      :puppet_key,
+      :direction,
+      :position,
+    ]
+
+    def new(puppet_key, direction, position) do
+      %PuppetStarts{
+        puppet_key: puppet_key,
+        direction: direction,
+        position: position,
+      }
+    end
+  end
+
+  defmessage PuppetMoves do
+    opcode "PUPPET_MOVES"
+
+    content [
+      :puppet_key,
+      :direction,
+      :position,
+    ]
+
+    def new(puppet_key, direction, position) do
+      %PuppetMoves{
+        puppet_key: puppet_key,
+        direction: direction,
+        position: position,
+      }
+    end
+  end
+
+  defmessage PuppetStops do
+    opcode "PUPPET_STOPS"
+
+    content [
+      :puppet_key,
+      :position,
+    ]
+
+    def new(puppet_key, position) do
+      %PuppetStarts{
+        puppet_key: puppet_key,
+        position: position,
+      }
+    end
+  end
 
   #############################################################################
   def init_state(instance_key, _map_key) do
@@ -49,7 +123,7 @@ defsystem Lykan.System.Physics do
       dir = Body.get_direction(puppet_key)
       pos = Body.get_position(puppet_key)
 
-      notify(&Lykan.Puppeteer.notify(&1, {:puppet_starts_moving, puppet_key, dir, pos}))
+      notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.new(puppet_key, dir, pos)))
 
       Map.put(state, puppet_key, beac)
     else
@@ -67,7 +141,7 @@ defsystem Lykan.System.Physics do
 
       Body.set_position(puppet_key, pos)
 
-      notify(&Lykan.Puppeteer.notify(&1, {:puppet_moves, puppet_key, dir, pos}))
+      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.new(puppet_key, dir, pos)))
     end
 
     state
@@ -82,7 +156,7 @@ defsystem Lykan.System.Physics do
           pos = Body.get_position(puppet_key)
           dir = Body.get_direction(puppet_key)
 
-          notify(&Lykan.Puppeteer.notify(&1, {:puppet_stops_moving, puppet_key, pos}))
+          notify(&Lykan.Puppeteer.notify(&1, PuppetStops.new(puppet_key, pos)))
 
           Map.delete(state, puppet_key)
         _ ->
@@ -93,16 +167,16 @@ defsystem Lykan.System.Physics do
     end
   end
 
-  defp moves({x, y}, {max_x, max_y}, :up) do
-    {x, min(max_y, y + 5)}
+  defp moves(pos, {max_x, max_y}, :up) do
+    Position.new(pos.x, min(max_y, pos.y + 5))
   end
-  defp moves({x, y}, {max_x, max_y}, :down) do
-    {x, max(0, y - 5)}
+  defp moves(pos, {max_x, max_y}, :down) do
+    Position.new(pos.x, max(0, pos.y - 5))
   end
-  defp moves({x, y}, {max_x, max_y}, :left) do
-    {max(0, x - 5), y}
+  defp moves(pos, {max_x, max_y}, :left) do
+    Position.new(max(0, pos.x - 5), pos.y)
   end
-  defp moves({x, y}, {max_x, max_y}, :right) do
-    {min(max_x, x + 5), y}
+  defp moves(pos, {max_x, max_y}, :right) do
+    Position.new(min(max_x, pos.x + 5), pos.y)
   end
 end

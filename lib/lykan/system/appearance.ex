@@ -1,6 +1,7 @@
 use Lkn.Prelude
 import Lkn.Core.System, only: [defsystem: 2]
 import Lkn.Core.Component, only: [defcomponent: 2]
+import Lykan.Message, only: [defmessage: 2]
 
 defsystem Lykan.System.Appearance do
   defcomponent Component do
@@ -13,6 +14,22 @@ defsystem Lykan.System.Appearance do
   @map Component
   @puppet Component
 
+  defmessage ColorChange do
+    opcode "COLOR_CHANGE"
+
+    content [
+      :puppet_key,
+      :color,
+    ]
+
+    def new(key, new_color) do
+      %ColorChange{
+        puppet_key: key,
+        color: new_color,
+      }
+    end
+  end
+
   def init_state(_instance_key, _map_key) do
     :ok
   end
@@ -21,7 +38,8 @@ defsystem Lykan.System.Appearance do
     c = Component.get_color(map_key)
     Component.set_color(key, c)
 
-    notify(&Lykan.Puppeteer.notify(&1, {:puppet_color, key, c}))
+    notify(&Lykan.Puppeteer.notify(&1, ColorChange.new(key, c)))
+
     :ok
   end
 
@@ -32,8 +50,8 @@ defsystem Lykan.System.Appearance do
   cast change_puppet_color(key :: Lkn.Core.Puppet.k, c :: String.t) do
     Component.set_color(key, c)
 
-    notify(&Lykan.Puppeteer.notify(&1, {:puppet_color, key, c}))
+    notify(&Lykan.Puppeteer.notify(&1, ColorChange.new(key, c)))
 
-    state
+    :ok
   end
 end

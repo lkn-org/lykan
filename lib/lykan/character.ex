@@ -10,11 +10,11 @@ defpuppet Lykan.Character do
     end
 
     def get_position(_key, s = {_, x, y}) do
-      {{x, y}, s}
+      {Lykan.System.Physics.Position.new(x, y), s}
     end
 
-    def set_position(_key, {x, y}, {dir, _, _}) do
-      {dir, x, y}
+    def set_position(_key, pos, {dir, _, _}) do
+      {dir, pos.x, pos.y}
     end
 
     def get_direction(_key, s = {dir, _, _}) do
