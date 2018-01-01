@@ -27,15 +27,14 @@ defmodule Lykan do
     defp serve(client, map_key) do
       Socket.Web.accept!(client)
 
-      # spawn a player puppeteer and find an instance
-      puppeteer_key = UUID.uuid4()
-      Lykan.Puppeteer.Player.start_link(puppeteer_key, client)
-      Lkn.Core.Puppeteer.find_instance(puppeteer_key, map_key)
-
-      # spawn a character for this puppeteer
+      # spawn a character for this player
       chara_key = UUID.uuid4()
       Lykan.Character.spawn(chara_key)
-      Lykan.Puppeteer.Player.assign_puppet(puppeteer_key, chara_key)
+
+      # spawn a player puppeteer and find an instance
+      puppeteer_key = UUID.uuid4()
+      Lykan.Puppeteer.Player.start_link(puppeteer_key, client, chara_key)
+      Lkn.Core.Puppeteer.find_instance(puppeteer_key, map_key)
 
       recv(puppeteer_key, client)
     end

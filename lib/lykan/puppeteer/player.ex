@@ -50,40 +50,30 @@ defmodule Lykan.Puppeteer.Player do
 
     defstruct [
       :socket,
-      :puppets,
-      :instance,
+      :puppet,
     ]
 
-    def new(socket) do
+    def new(socket, main_puppet) do
       %__MODULE__{
         socket: socket,
-        puppets: [],
+        puppet: main_puppet,
       }
-    end
-
-    def add_puppet(state, instance_key, puppet) do
-      case instance_key do
-        Option.some(instance) ->
-          Lkn.Core.Instance.register_puppet(instance, puppet)
-        _ -> :ok
-      end
-
-      %Info{state|puppets: [puppet | state.puppets]}
     end
   end
 
   use Lykan.Puppeteer do
-    cast assign_puppet(puppet_key :: Lkn.Core.Puppet.k) do
-      Info.add_puppet(state, instance_key, puppet_key)
+    cast inject(cmd :: any) do
+      IO.puts inspect(cmd)
+      state
     end
   end
 
-  def init_state(socket) do
-    {:ok, Info.new(socket)}
+  def init_state(socket: socket, main: puppet) do
+    {:ok, Info.new(socket, puppet)}
   end
 
-  def start_link(puppeteer_key, socket) do
-    Lkn.Core.Puppeteer.start_link(__MODULE__, puppeteer_key, socket)
+  def start_link(puppeteer_key, socket, main) do
+    Lkn.Core.Puppeteer.start_link(__MODULE__, puppeteer_key, socket: socket, main: main)
   end
 
   def leave_instance(state, _instance_key) do
@@ -121,18 +111,15 @@ defmodule Lykan.Puppeteer.Player do
 
   def destroy(key, state, Option.some(instance_key), reason) do
     # we leave the instance in a clean way
-    Enum.map(state.puppets, fn puppet ->
-      Lkn.Core.Instance.unregister_puppet(instance_key, puppet)
-    end)
+    Lykan.System.Physics.puppet_stops_moving(instance_key, state.puppet)
+    Lkn.Core.Instance.unregister_puppet(instance_key, state.puppet)
 
     Lkn.Core.Instance.unregister_puppeteer(instance_key, key)
 
     destroy(key, state, Option.nothing(), reason)
   end
   def destroy(key, state, _none, _reason) do
-    # we kill our puppets
-    Enum.map(state.puppets, fn puppet ->
-      Lkn.Core.Entity.stop(puppet)
-    end)
+    # we kill our puppet
+    Lkn.Core.Entity.stop(state.puppet)
   end
 end
