@@ -1,6 +1,50 @@
 use Lkn.Prelude
 
+import Lykan.Message, only: [defmessage: 2]
+
 defmodule Lykan.Puppeteer.Player do
+  defmessage PuppetEnter do
+    opcode "PUPPET_ENTERS"
+    content [
+      :puppet_key,
+      :digest,
+    ]
+
+    def new(key, digest) do
+      %PuppetEnter{
+        puppet_key: key,
+        digest: digest,
+      }
+    end
+  end
+
+  defmessage PuppetLeave do
+    opcode "PUPPET_LEAVES"
+
+    content [
+      :puppet_key
+    ]
+
+    def new(key) do
+      %PuppetLeave{
+        puppet_key: key
+      }
+    end
+  end
+
+  defmessage InstanceDigest do
+    opcode "INSTANCE_DIGEST"
+
+    content [
+      :map,
+      :puppets,
+    ]
+
+    def craft(map_key, map, puppets) do
+      craft(%{:map_key => map_key, :digest => map}, puppets)
+    end
+  end
+
   defmodule Info do
     @moduledoc false
 
@@ -47,23 +91,20 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   def puppet_enter(state, _instance_key, puppet_key, digest) do
-    Socket.Web.send!(
-      state.socket,
-      {:text, "[Puppet(#{inspect puppet_key})] enters, digest is #{inspect digest}"}
-    )
+    Lykan.Message.send(state.socket, PuppetEnter.new(puppet_key, digest))
+
     state
   end
 
   def puppet_leave(state, _instance_key, puppet_key) do
-    Socket.Web.send!(
-      state.socket,
-      {:text, "[Puppet(#{inspect puppet_key})] leaves"}
-    )
+    Lykan.Message.send(state.socket, PuppetLeave.new(puppet_key))
+
     state
   end
 
   def notify(_key, msg, _instance_key, state) do
-    Socket.Web.send! state.socket, {:text, Lykan.Message.encode!(msg) }
+    Lykan.Message.send(state.socket, msg)
+
     state
   end
   def puppet_color(_key, puppet, c, _instance_key, state) do
@@ -71,10 +112,10 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   def instance_digest(state, instance_key, map_key, map, puppets) do
-    Socket.Web.send! state.socket, {
-      :text,
-      "[Instance(#{inspect instance_key})] for [Map(#{inspect map_key})]: #{inspect map} puppets: #{inspect puppets}"
-    }
+    Lykan.Message.send(state.socket, InstanceDigest.craft(map_key, map, puppets))
+
+    Lkn.Core.Instance.register_puppet(instance_key, state.puppet)
+
     state
   end
 

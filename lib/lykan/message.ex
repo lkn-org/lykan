@@ -27,6 +27,10 @@ defmodule Lykan.Message do
     json
   end
 
+  def send(socket, msg) do
+    Socket.Web.send! socket, {:text, encode!(msg)}
+  end
+
   defmacro defmessage(name, do: block) do
     block = case block do
               {:__block__, _, x} -> x
