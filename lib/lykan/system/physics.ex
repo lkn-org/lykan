@@ -144,16 +144,16 @@ defsystem Lykan.System.Physics do
     end
   end
 
-  defp moves(pos, {max_x, max_y}, :up) do
+  defp moves(pos, {_max_x, max_y}, :up) do
     Position.new(pos.x, min(max_y, pos.y + 5))
   end
-  defp moves(pos, {max_x, max_y}, :down) do
+  defp moves(pos, {_max_x, _max_y}, :down) do
     Position.new(pos.x, max(0, pos.y - 5))
   end
-  defp moves(pos, {max_x, max_y}, :left) do
+  defp moves(pos, {_max_x, _max_y}, :left) do
     Position.new(max(0, pos.x - 5), pos.y)
   end
-  defp moves(pos, {max_x, max_y}, :right) do
+  defp moves(pos, {max_x, _max_y}, :right) do
     Position.new(min(max_x, pos.x + 5), pos.y)
   end
 end
