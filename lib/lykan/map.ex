@@ -5,12 +5,15 @@ defmap Lykan.Map do
   defmodule World do
     use Lykan.System.Physics.World
 
-    def boundaries(key, :no_state) do
-      {{100, 100}, :no_state}
+    def boundaries(key, boundaries) do
+      {boundaries, boundaries}
     end
 
-    def init_state(_key) do
-      {:ok, :no_state}
+    def init_state(key) do
+      w = read(key, :width)
+      h = read(key, :height)
+
+      {:ok, {w, h}}
     end
   end
 
@@ -45,6 +48,8 @@ defmap Lykan.Map do
       :delay => 1000,
       :limit => 2,
       :default_color => c,
+      :width => 100,
+      :height => 100,
      }
   end
 
