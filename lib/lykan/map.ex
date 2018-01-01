@@ -10,8 +10,8 @@ defmap Lykan.Map do
     end
 
     def init_state(key) do
-      w = read(key, :width)
-      h = read(key, :height)
+      Option.some(w) = read(key, :width)
+      Option.some(h) = read(key, :height)
 
       {:ok, {w, h}}
     end
