@@ -42,7 +42,7 @@ defmodule Lykan do
     defp recv(puppeteer_key, client) do
       case Web.recv(client) do
         {:ok, {:text, msg}} ->
-          IO.puts "[Puppeteer(puppeteer_key)] received #{msg}"
+          Lykan.Puppeteer.Player.inject(puppeteer_key, msg)
 
           recv(puppeteer_key, client)
         _ ->

@@ -63,8 +63,10 @@ defmodule Lykan.Puppeteer.Player do
 
   use Lykan.Puppeteer do
     cast inject(cmd :: any) do
-      IO.puts inspect(cmd)
-      state
+      case instance_key do
+        Option.some(instance_key) -> consume_cmd(cmd, state, instance_key)
+        Option.nothing() -> state
+      end
     end
   end
 
@@ -74,6 +76,16 @@ defmodule Lykan.Puppeteer.Player do
 
   def start_link(puppeteer_key, socket, main) do
     Lkn.Core.Puppeteer.start_link(__MODULE__, puppeteer_key, socket: socket, main: main)
+  end
+
+  defp consume_cmd("MOVE", state, instance_key) do
+    Lykan.System.Physics.puppet_starts_moving(instance_key, state.puppet)
+    state
+  end
+
+  defp consume_cmd("STOP", state, instance_key) do
+    Lykan.System.Physics.puppet_stops_moving(instance_key, state.puppet)
+    state
   end
 
   def leave_instance(state, _instance_key) do
