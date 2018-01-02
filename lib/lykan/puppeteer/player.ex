@@ -163,7 +163,7 @@ defmodule Lykan.Puppeteer.Player do
 
     destroy(key, state, Option.nothing(), reason)
   end
-  def destroy(key, state, _none, _reason) do
+  def destroy(_key, state, _none, _reason) do
     # we kill our puppet
     Lkn.Core.Entity.stop(state.puppet)
   end
