@@ -65,7 +65,7 @@ defmodule Lykan.Puppeteer.Player do
     cast inject(cmd :: any) do
       case instance_key do
         Option.some(instance_key) -> consume_cmd(cmd, state, instance_key)
-        Option.nothing() -> state
+        Option.nothing() -> cast_return()
       end
     end
   end
@@ -80,57 +80,60 @@ defmodule Lykan.Puppeteer.Player do
 
   defp consume_cmd("MOVE", state, instance_key) do
     Lykan.System.Physics.puppet_starts_moving(instance_key, state.puppet)
-    state
+
+    cast_return()
   end
 
   defp consume_cmd("STOP", state, instance_key) do
     Lykan.System.Physics.puppet_stops_moving(instance_key, state.puppet)
-    state
+
+    cast_return()
   end
 
   defp consume_cmd("UP", state, instance_key) do
     Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :up)
-    state
+
+    cast_return()
   end
 
   defp consume_cmd("DOWN", state, instance_key) do
     Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :down)
-    state
+
+    cast_return()
   end
 
   defp consume_cmd("RIGHT", state, instance_key) do
     Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :right)
-    state
+
+    cast_return()
   end
 
   defp consume_cmd("LEFT", state, instance_key) do
     Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :left)
-    state
+
+    cast_return()
   end
 
   def leave_instance(state, _instance_key) do
-    state
+    cast_return()
   end
 
   def puppet_enter(state, _instance_key, puppet_key, digest) do
     Lykan.Message.send(state.socket, PuppetEnter.new(puppet_key, digest))
 
-    state
+    cast_return()
   end
 
   def puppet_leave(state, _instance_key, puppet_key) do
     Lykan.Message.send(state.socket, PuppetLeave.new(puppet_key))
 
-    state
+    cast_return()
   end
 
   def notify(_key, msg, _instance_key, state) do
     Lykan.Message.send(state.socket, msg)
 
-    state
-  end
-  def puppet_color(_key, puppet, c, _instance_key, state) do
-    state
+    cast_return()
   end
 
   def instance_digest(state, instance_key, map_key, map, puppets) do
@@ -138,7 +141,7 @@ defmodule Lykan.Puppeteer.Player do
 
     Lkn.Core.Instance.register_puppet(instance_key, state.puppet)
 
-    state
+    cast_return()
   end
 
   def destroy(key, state, Option.some(instance_key), reason) do
