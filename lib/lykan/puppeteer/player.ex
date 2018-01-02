@@ -45,7 +45,7 @@ defmodule Lykan.Puppeteer.Player do
     end
   end
 
-  defmodule Info do
+  defmodule State do
     @moduledoc false
 
     defstruct [
@@ -71,7 +71,7 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   def init_state(socket: socket, main: puppet) do
-    {:ok, Info.new(socket, puppet)}
+    {:ok, State.new(socket, puppet)}
   end
 
   def start_link(puppeteer_key, socket, main) do
