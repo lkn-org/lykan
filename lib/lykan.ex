@@ -34,7 +34,7 @@ defmodule Lykan do
       # spawn a player puppeteer and find an instance
       puppeteer_key = UUID.uuid4()
       Lykan.Puppeteer.Player.start_link(puppeteer_key, client, chara_key)
-      Lkn.Core.Puppeteer.find_instance(puppeteer_key, map_key)
+      Lykan.Puppeteer.Player.goto(puppeteer_key, map_key)
 
       recv(puppeteer_key, client)
     end

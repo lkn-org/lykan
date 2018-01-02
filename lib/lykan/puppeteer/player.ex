@@ -62,6 +62,16 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   use Lykan.Puppeteer do
+    cast goto(map_key :: Lkn.Core.Map.k) do
+      Option.map(instance_key, fn key ->
+        Lkn.Core.Instance.unregister_puppet(key, state.puppet)
+        Lkn.Core.Instance.unregister_puppeteer(key, puppeteer_key)
+      end)
+
+      instance_key = Lkn.Core.Pool.register_puppeteer(map_key, puppeteer_key, Lykan.Puppeteer.Player)
+
+      cast_return(instance: Option.some(instance_key), map_key: map_key)
+    end
     cast inject(cmd :: any) do
       case instance_key do
         Option.some(instance_key) -> consume_cmd(cmd, state, instance_key)
