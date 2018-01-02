@@ -33,11 +33,11 @@ defsystem Lykan.System.Appearance do
 
     notify(&Lykan.Puppeteer.notify(&1, ColorChange.craft(key, c)))
 
-    :ok
+    cast_return()
   end
 
   def puppet_leave(_no_state, _instance_key, _map_key, _puppets, _key) do
-    :ok
+    cast_return()
   end
 
   cast change_puppet_color(key :: Lkn.Core.Puppet.k, c :: String.t) do
@@ -45,6 +45,6 @@ defsystem Lykan.System.Appearance do
 
     notify(&Lykan.Puppeteer.notify(&1, ColorChange.craft(key, c)))
 
-    :ok
+    cast_return()
   end
 end

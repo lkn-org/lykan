@@ -83,17 +83,18 @@ defsystem Lykan.System.Physics do
   end
 
   def puppet_enter(state, instance_key, map_key, puppets, puppet_key) do
-    state
+    cast_return()
   end
 
   def puppet_leave(state, instance_key, map_key, puppets, puppet_key) do
-    state
+    cast_return()
   end
 
   #############################################################################
   cast puppet_changes_dir(puppet_key :: Lkn.Core.Puppet.k, dir :: direction) do
     Body.set_direction(puppet_key, dir)
-    state
+
+    cast_return()
   end
 
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
@@ -107,9 +108,9 @@ defsystem Lykan.System.Physics do
 
       notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.craft(puppet_key, dir, pos)))
 
-      Map.put(state, puppet_key, beac)
+      cast_return(state: Map.put(state, puppet_key, beac))
     else
-      state
+      cast_return()
     end
   end
 
@@ -126,7 +127,7 @@ defsystem Lykan.System.Physics do
       notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, dir, pos)))
     end
 
-    state
+    cast_return()
   end
 
   cast puppet_stops_moving(puppet_key :: Lkn.Core.Puppet.k) do
@@ -140,12 +141,12 @@ defsystem Lykan.System.Physics do
 
           notify(&Lykan.Puppeteer.notify(&1, PuppetStops.craft(puppet_key, pos)))
 
-          Map.delete(state, puppet_key)
+          cast_return(state: Map.delete(state, puppet_key))
         _ ->
-          state
+          cast_return()
       end
     else
-      state
+      cast_return()
     end
   end
 
