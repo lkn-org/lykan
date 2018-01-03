@@ -2,29 +2,14 @@ use Lkn.Prelude
 
 import Lkn.Core.System, only: [defsystem: 2]
 import Lkn.Core.Component, only: [defcomponent: 2]
+
+alias Lkn.Physics.Geometry.Box
+alias Lkn.Physics.Geometry.Vector
+alias Lkn.Physics
+
 import Lykan.Message, only: [defmessage: 2]
 
 defsystem Lykan.System.Physics do
-  defmodule Position do
-    defstruct [
-      :x,
-      :y,
-    ]
-
-    @type t :: %Position{
-      x: non_neg_integer,
-      y: non_neg_integer,
-    }
-
-    @spec new(x :: non_neg_integer, y :: non_neg_integer) :: t
-    def new(x, y) do
-      %Position{
-        x: x,
-        y: y,
-      }
-    end
-  end
-
   @type direction :: :up | :down | :right | :left
 
   defcomponent Body do
@@ -33,8 +18,10 @@ defsystem Lykan.System.Physics do
     @call get_direction() :: Lykan.System.Physics.direction
     @cast set_direction(dir :: Lykan.System.Physics.direction)
 
-    @call get_position() :: Lkn.System.Physics.Position.t
-    @cast set_position(pos :: Lkn.System.Physics.Position.t)
+    @call get_position() :: Vector.t
+    @cast set_position(pos :: Vector.t)
+
+    @call get_box() :: Box.t
   end
 
   defcomponent World do
@@ -53,8 +40,6 @@ defsystem Lykan.System.Physics do
 
     content [
       :puppet_key,
-      :direction,
-      :position,
     ]
   end
 
@@ -63,7 +48,6 @@ defsystem Lykan.System.Physics do
 
     content [
       :puppet_key,
-      :direction,
       :position,
     ]
   end
@@ -73,21 +57,82 @@ defsystem Lykan.System.Physics do
 
     content [
       :puppet_key,
-      :position,
     ]
   end
 
   #############################################################################
-  def init_state(instance_key, _map_key) do
-    Map.new()
+  defmodule State do
+    @moduledoc false
+
+    defstruct [
+      :world,
+      :moving,
+    ]
+
+    def new(w, h) do
+      world = Physics.World.new(w, h)
+
+      %State{
+        world: world,
+        moving: Map.new(),
+      }
+    end
+
+    def add(state, key, body) do
+      %State{state|
+             world: Physics.World.add(state.world, key, body)
+      }
+    end
+
+    def remove(state, key) do
+      state = stops_moving(state, key)
+
+      %State{state|
+        world: Physics.World.remove(state.world, key),
+      }
+    end
+
+    def move?(state, key) do
+      Map.has_key?(state.moving, key)
+    end
+
+    def starts_moving(state, key, beac) do
+      %State{state|moving: Map.put(state.moving, key, beac)}
+    end
+
+    def stops_moving(state, key) do
+      {mbeac, mov} = Map.pop(state.moving, key)
+
+      case mbeac do
+        nil -> nil
+        beac -> Beacon.cancel(beac)
+      end
+
+      %State{state|moving: mov}
+    end
+
+    def move(state, key, vector) do
+      {pos, world} = Physics.World.move(state.world, key, vector)
+      {pos, %State{state|world: world}}
+    end
   end
 
-  def puppet_enter(state, instance_key, map_key, puppets, puppet_key) do
-    cast_return()
+  #############################################################################
+  def init_state(instance_key, map_key) do
+    {w, h} = World.boundaries(map_key)
+
+    State.new(w, h)
   end
 
-  def puppet_leave(state, instance_key, map_key, puppets, puppet_key) do
-    cast_return()
+  def puppet_enter(state, _instance_key, _map_key, _puppets, puppet_key) do
+    vec = Body.get_position(puppet_key)
+    bod = Body.get_box(puppet_key)
+
+    cast_return(state: State.add(state, puppet_key, Physics.Body.new(vec, bod, false)))
+  end
+
+  def puppet_leave(state, _instance_key, _map_key, _puppets, puppet_key) do
+    cast_return(state: State.remove(state, puppet_key))
   end
 
   #############################################################################
@@ -98,17 +143,14 @@ defsystem Lykan.System.Physics do
   end
 
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
-    if MapSet.member?(puppets, puppet_key) && !Map.has_key?(state, puppet_key) do
+    if MapSet.member?(puppets, puppet_key) && !State.move?(state, puppet_key) do
       {:ok, beac} = Beacon.start(instance_key)
       beac |> Beacon.set_periodic_callback(300, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
-      |> Beacon.enable()
+           |> Beacon.enable()
 
-      dir = Body.get_direction(puppet_key)
-      pos = Body.get_position(puppet_key)
+      notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.craft(puppet_key)))
 
-      notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.craft(puppet_key, dir, pos)))
-
-      cast_return(state: Map.put(state, puppet_key, beac))
+      cast_return(state: State.starts_moving(state, puppet_key, beac))
     else
       cast_return()
     end
@@ -117,49 +159,32 @@ defsystem Lykan.System.Physics do
   cast puppet_moves(puppet_key :: Lkn.Core.Puppet.k) do
     if MapSet.member?(puppets, puppet_key) do
       dir = Body.get_direction(puppet_key)
-      pos = Body.get_position(puppet_key)
-      bound = World.boundaries(map_key)
-
-      pos = moves(pos, bound, dir)
+      vec = case dir do
+              :up -> Vector.new(0, 5)
+              :down -> Vector.new(0, -5)
+              :right -> Vector.new(5, 0)
+              :left -> Vector.new(-5, 0)
+            end
+      {pos, state} = State.move(state, puppet_key, vec)
 
       Body.set_position(puppet_key, pos)
 
-      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, dir, pos)))
-    end
-
-    cast_return()
-  end
-
-  cast puppet_stops_moving(puppet_key :: Lkn.Core.Puppet.k) do
-    if MapSet.member?(puppets, puppet_key) do
-      case Map.fetch(state, puppet_key) do
-        {:ok, beac} ->
-          Beacon.cancel(beac)
-
-          pos = Body.get_position(puppet_key)
-          dir = Body.get_direction(puppet_key)
-
-          notify(&Lykan.Puppeteer.notify(&1, PuppetStops.craft(puppet_key, pos)))
-
-          cast_return(state: Map.delete(state, puppet_key))
-        _ ->
-          cast_return()
-      end
+      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, pos)))
+      cast_return(state: state)
     else
       cast_return()
     end
   end
 
-  defp moves(pos, {_max_x, max_y}, :up) do
-    Position.new(pos.x, min(max_y, pos.y + 5))
-  end
-  defp moves(pos, {_max_x, _max_y}, :down) do
-    Position.new(pos.x, max(0, pos.y - 5))
-  end
-  defp moves(pos, {_max_x, _max_y}, :left) do
-    Position.new(max(0, pos.x - 5), pos.y)
-  end
-  defp moves(pos, {max_x, _max_y}, :right) do
-    Position.new(min(max_x, pos.x + 5), pos.y)
+  cast puppet_stops_moving(puppet_key :: Lkn.Core.Puppet.k) do
+    if MapSet.member?(puppets, puppet_key) do
+      state = State.stops_moving(state, puppet_key)
+
+      notify(&Lykan.Puppeteer.notify(&1, PuppetStops.craft(puppet_key)))
+
+      cast_return(state: state)
+    else
+      cast_return()
+    end
   end
 end

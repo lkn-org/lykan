@@ -50,7 +50,9 @@
 
       for (var puppet in puppets) {
         ctx.fillStyle = puppets[puppet].color;
-        ctx.fillRect(puppets[puppet].x, map_height - puppets[puppet].y, 2, 2);
+        ctx.fillRect(puppets[puppet].x, map_height - puppets[puppet].y, 10, -10);
+        ctx.fillStyle = "red";
+        ctx.fillRect(puppets[puppet].x, map_height - puppets[puppet].y, 2, -2);
       }
     }
 

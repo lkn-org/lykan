@@ -5,7 +5,7 @@ defmap Lykan.Map do
   defmodule World do
     use Lykan.System.Physics.World
 
-    def boundaries(key, boundaries) do
+    def boundaries(_key, boundaries) do
       {boundaries, boundaries}
     end
 

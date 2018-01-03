@@ -1,4 +1,6 @@
 use Lkn.Prelude
+alias Lkn.Physics.Geometry.Vector
+alias Lkn.Physics.Geometry.Box
 
 import Lkn.Core.Puppet, only: [defpuppet: 2]
 
@@ -14,7 +16,11 @@ defpuppet Lykan.Character do
       Option.some(x) = read(key, :x)
       Option.some(y) = read(key, :y)
 
-      {Lykan.System.Physics.Position.new(x, y), dir}
+      {Vector.new(x, y), dir}
+    end
+
+    def get_box(_key, dir) do
+      {Box.new(10, 10), dir}
     end
 
     def set_position(key, pos, dir) do
