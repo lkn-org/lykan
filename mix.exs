@@ -35,6 +35,7 @@ defmodule Lykan.Mixfile do
 
       # development
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:distillery, "~> 1.5.2", runtime: false}
     ]
   end
 end
