@@ -110,11 +110,6 @@ defsystem Lykan.System.Physics do
 
       %State{state|moving: mov}
     end
-
-    def move(state, key, vector) do
-      {pos, world} = Physics.World.move(state.world, key, vector)
-      {pos, %State{state|world: world}}
-    end
   end
 
   #############################################################################
@@ -125,7 +120,7 @@ defsystem Lykan.System.Physics do
   end
 
   def puppet_enter(state, _instance_key, _map_key, _puppets, puppet_key) do
-    vec = Body.get_position(puppet_key)
+    vec = fn -> Body.get_position(puppet_key) end
     bod = Body.get_box(puppet_key)
 
     cast_return(state: State.add(state, puppet_key, Physics.Body.new(vec, bod, false)))
@@ -145,7 +140,7 @@ defsystem Lykan.System.Physics do
   cast puppet_starts_moving(puppet_key :: Lkn.Core.Puppet.k) do
     if MapSet.member?(puppets, puppet_key) && !State.move?(state, puppet_key) do
       {:ok, beac} = Beacon.start(instance_key)
-      beac |> Beacon.set_periodic_callback(300, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
+      beac |> Beacon.set_periodic_callback(150, &Lykan.System.Physics.puppet_moves(&1, puppet_key))
            |> Beacon.enable()
 
       notify(&Lykan.Puppeteer.notify(&1, PuppetStarts.craft(puppet_key)))
@@ -159,18 +154,19 @@ defsystem Lykan.System.Physics do
   cast puppet_moves(puppet_key :: Lkn.Core.Puppet.k) do
     if MapSet.member?(puppets, puppet_key) do
       dir = Body.get_direction(puppet_key)
-      vec = case dir do
-              :up -> Vector.new(0, 5)
-              :down -> Vector.new(0, -5)
-              :right -> Vector.new(5, 0)
-              :left -> Vector.new(-5, 0)
-            end
-      {pos, state} = State.move(state, puppet_key, vec)
 
-      Body.set_position(puppet_key, pos)
+      vec = Physics.World.move(state.world, puppet_key, case dir do
+                                                          :up -> Vector.new(0, 5)
+                                                          :down -> Vector.new(0, -5)
+                                                          :right -> Vector.new(5, 0)
+                                                          :left -> Vector.new(-5, 0)
+                                                        end)
 
-      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, pos)))
-      cast_return(state: state)
+      new_pos = Vector.add(Body.get_position(puppet_key), vec)
+      Body.set_position(puppet_key, new_pos)
+
+      notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, new_pos)))
+      cast_return()
     else
       cast_return()
     end
