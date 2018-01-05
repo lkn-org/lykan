@@ -46,7 +46,7 @@ defmap Lykan.Map do
     # last player left
     %{
       :delay => 1000,
-      :limit => 2,
+      :limit => 5,
       :default_color => c,
       :width => 100,
       :height => 100,
