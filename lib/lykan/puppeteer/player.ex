@@ -6,6 +6,12 @@ alias Lykan.System.Physics.PuppetHitsTeleport
 alias Lkn.Physics.Geometry.Vector
 
 defmodule Lykan.Puppeteer.Player do
+  defmessage AttributePuppet do
+    opcode "ATTRIBUTE_PUPPET"
+    content [
+      :puppet_key,
+    ]
+  end
   defmessage PuppetEnter do
     opcode "PUPPET_ENTERS"
     content [
@@ -85,6 +91,8 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   def init_state(socket: socket, main: puppet) do
+    Lykan.Message.send(socket, AttributePuppet.craft(puppet))
+
     {:ok, State.new(socket, puppet)}
   end
 
