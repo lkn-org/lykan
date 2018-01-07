@@ -20,7 +20,7 @@ defpuppet Lykan.Character do
     end
 
     def get_box(_key, dir) do
-      {Box.new(10, 10), dir}
+      {Box.new(24, 24), dir}
     end
 
     def set_position(key, pos, dir) do

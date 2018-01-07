@@ -17,7 +17,7 @@ defmap Lykan.Map do
       Option.some(w) = read(key, :width)
       Option.some(h) = read(key, :height)
 
-      {:ok, {w, h}}
+      {:ok, {w * 24, h * 24}}
     end
 
     def get_teleporters(key, st) do

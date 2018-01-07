@@ -210,10 +210,10 @@ defsystem Lykan.System.Physics do
 
       {vec, col} =
         Physics.World.move(state.world, puppet_key, case dir do
-                                                      :up -> Vector.new(0, 5)
-                                                      :down -> Vector.new(0, -5)
-                                                      :right -> Vector.new(5, 0)
-                                                      :left -> Vector.new(-5, 0)
+                                                      :up -> Vector.new(0, 8)
+                                                      :down -> Vector.new(0, -8)
+                                                      :right -> Vector.new(8, 0)
+                                                      :left -> Vector.new(-8, 0)
                                                     end)
 
       col = handle_collision(state, puppet_key, col)
