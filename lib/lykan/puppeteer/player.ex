@@ -2,6 +2,9 @@ use Lkn.Prelude
 
 import Lykan.Message, only: [defmessage: 2]
 
+alias Lykan.System.Physics.PuppetHitsTeleport
+alias Lkn.Physics.Geometry.Vector
+
 defmodule Lykan.Puppeteer.Player do
   defmessage PuppetEnter do
     opcode "PUPPET_ENTERS"
@@ -72,6 +75,7 @@ defmodule Lykan.Puppeteer.Player do
 
       cast_return(instance: Option.some(instance_key), map_key: map_key)
     end
+
     cast inject(cmd :: any) do
       case instance_key do
         Option.some(instance_key) -> consume_cmd(cmd, state, instance_key)
@@ -140,6 +144,19 @@ defmodule Lykan.Puppeteer.Player do
     cast_return()
   end
 
+  def notify(key, msg = %PuppetHitsTeleport{}, Option.some(instance_key), state) do
+    Lkn.Core.Instance.unregister_puppet(instance_key, state.puppet)
+    Lkn.Core.Instance.unregister_puppeteer(instance_key, key)
+
+    instance_key = Lkn.Core.Pool.register_puppeteer(msg.map, key, __MODULE__)
+
+    Lykan.System.Physics.Body.set_position(state.puppet, Vector.new(0, 10))
+
+
+    Lkn.Core.Instance.register_puppet(instance_key, state.puppet)
+
+    cast_return(instance: Option.some(instance_key), map_key: msg.map)
+  end
   def notify(_key, msg, _instance_key, state) do
     Lykan.Message.send(state.socket, msg)
 

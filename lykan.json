@@ -1,4 +1,55 @@
 {
-  "maps": [ "m1", "m2", "m3", "m4" ],
+  "maps": {
+    "m1": {
+      "color": "red",
+      "width": 100,
+      "height": 150,
+      "entry_points": {
+        "m2_ep": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "teleporters": [
+        {
+          "at": {
+            "x": 90,
+            "y": 140,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "map": "m2",
+            "entry_point": "m2_ep"
+          }
+        }
+      ]
+    },
+    "m2": {
+      "color": "blue",
+      "width": 80,
+      "height": 100,
+      "entry_points": {
+        "m2_ep": {
+          "x": 50,
+          "y": 50
+        }
+      },
+      "teleporters": [
+        {
+          "at": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "map": "m1",
+            "entry_point": "m1_ep"
+          }
+        }
+      ]
+    }
+  },
   "default_map": "m1"
 }

@@ -1,5 +1,9 @@
 use Lkn.Prelude
 import Lkn.Core.Map, only: [defmap: 2]
+alias Lkn.Physics.Body
+alias Lkn.Physics.Geometry.Box
+alias Lkn.Physics.Geometry.Vector
+alias Lykan.System.Physics.Teleporter
 
 defmap Lykan.Map do
   defmodule World do
@@ -14,6 +18,12 @@ defmap Lykan.Map do
       Option.some(h) = read(key, :height)
 
       {:ok, {w, h}}
+    end
+
+    def get_teleporters(key, st) do
+      Option.some(t) = read(key, :teleporters)
+
+      {t, st}
     end
   end
 
@@ -41,20 +51,33 @@ defmap Lykan.Map do
     Lkn.Core.Entity.start_link(__MODULE__, key, c)
   end
 
-  def init_properties(c) do
+  def init_properties(attrs) do
+    # build the teleporters information
+    tels = Enum.map(attrs["teleporters"], fn v ->
+      Teleporter.new(
+        Body.new(
+          Vector.new(v["at"]["x"], v["at"]["y"]),
+          Box.new(v["at"]["width"], v["at"]["height"])
+        ),
+        {v["target"]["map"], v["target"]["entry_point"]}
+      )
+    end)
+
     # no more than 5 players, and keep the instance alive one second after the
     # last player left
     %{
       :delay => 1000,
       :limit => 5,
-      :default_color => c,
-      :width => 100,
-      :height => 100,
+      :default_color => attrs["color"],
+      :width => attrs["width"],
+      :height => attrs["height"],
+      :entry_points => attrs["entry_point"],
+      :teleporters => tels,
      }
   end
 
   def digest(props) do
-    Map.drop(props, [:delay, :limit])
+    Map.drop(props, [:delay, :limit, :teleporters, :entry_points])
   end
 
   def destroy(_puppet_key, _puppet, _reason) do

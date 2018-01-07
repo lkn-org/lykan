@@ -7,8 +7,8 @@ defmodule Lykan do
     def server(port) do
       # setup a set of maps from a config file
       conf = Lykan.Config.from_env!("lykan.json")
-      Enum.map(conf.maps, fn m ->
-          Lykan.Map.spawn(m, "blue")
+      Enum.map(conf.maps, fn {m, attrs} ->
+          Lykan.Map.spawn(m, attrs)
           Lkn.Core.Pool.spawn_pool(m)
         end)
 
