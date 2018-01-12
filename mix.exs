@@ -26,12 +26,15 @@ defmodule Lykan.Mixfile do
   defp deps do
     [
       {:uuid, "~> 1.1"},
+      {:lykan_repo, path: "../lykan-repo"},
       {:lkn_core, path: "../lkn-core"},
       {:lkn_physics, path: "../lkn-physics"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
       {:socket, "~> 0.3"},
       {:poison, "~> 3.1.0"},
+      {:sqlite_ecto2, "~> 2.2"},
+      {:ecto, "~> 2.1"},
 
       # development
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},

@@ -57,6 +57,7 @@ defmodule Lykan do
 
   def start(_type, _args) do
     children = [
+      supervisor(Lykan.Repo, [[name: Lykan.Repo]], restart: :transient),
       supervisor(Lykan.Map.Sup, [], restart: :transient),
       supervisor(Lykan.Character.Sup, [], restart: :transient),
       supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),
