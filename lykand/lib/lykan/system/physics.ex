@@ -49,7 +49,8 @@ defsystem Lykan.System.Physics do
     @system Lykan.System.Physics
 
     @call boundaries() :: {non_neg_integer, non_neg_integer}
-    @call get_teleporters() :: [Teleporter]
+    @call get_teleporters() :: [Teleporter.t]
+    @call get_entry_point(key :: any) :: Vector.t
   end
 
   @map World

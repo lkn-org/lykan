@@ -13,17 +13,23 @@ defmap Lykan.Map do
       {boundaries, boundaries}
     end
 
-    def init_state(key) do
-      Option.some(w) = read(key, :width)
-      Option.some(h) = read(key, :height)
+    def init_state(map_key) do
+      Option.some(w) = read(map_key, :width)
+      Option.some(h) = read(map_key, :height)
 
       {:ok, {w * 16, h * 16}}
     end
 
-    def get_teleporters(key, st) do
-      Option.some(t) = read(key, :teleporters)
+    def get_teleporters(map_key, st) do
+      Option.some(t) = read(map_key, :teleporters)
 
       {t, st}
+    end
+
+    def get_entry_point(map_key, target, st) do
+      Option.some(eps) = read(map_key, :entry_points)
+
+      {eps[target], st}
     end
   end
 
@@ -63,6 +69,10 @@ defmap Lykan.Map do
       )
     end)
 
+    eps = Enum.reduce(attrs["entry_points"], Map.new(), fn ({k,v}, res) ->
+      Map.put(res, k, Vector.new(v["x"], v["y"]))
+    end)
+
     # no more than 5 players, and keep the instance alive one second after the
     # last player left
     %{
@@ -71,7 +81,7 @@ defmap Lykan.Map do
       :default_color => attrs["color"],
       :width => attrs["width"],
       :height => attrs["height"],
-      :entry_points => attrs["entry_point"],
+      :entry_points => eps,
       :teleporters => tels,
      }
   end

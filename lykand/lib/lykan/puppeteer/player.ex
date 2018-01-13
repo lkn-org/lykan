@@ -154,13 +154,19 @@ defmodule Lykan.Puppeteer.Player do
 
   def notify(key, msg = %PuppetHitsTeleport{}, Option.some(instance_key), state) do
     if msg.puppet_key == state.puppet do
+      # leaving the current instance
       Lkn.Core.Instance.unregister_puppet(instance_key, state.puppet)
       Lkn.Core.Instance.unregister_puppeteer(instance_key, key)
 
+      # register to a new instance
       instance_key = Lkn.Core.Pool.register_puppeteer(msg.map, key, __MODULE__)
-
       Lykan.System.Physics.Body.set_position(state.puppet, Vector.new(0, 10))
 
+      # place the puppet (TODO: we should do better)
+      vec = Lykan.System.Physics.World.get_entry_point(msg.map, msg.entry_point)
+      Lykan.System.Physics.Body.set_position(state.puppet, vec)
+
+      # register our pupppet
       Lkn.Core.Instance.register_puppet(instance_key, state.puppet)
 
       cast_return(instance: Option.some(instance_key), map_key: msg.map)

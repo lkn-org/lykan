@@ -5,17 +5,17 @@
       "width": 10,
       "height": 15,
       "entry_points": {
-        "m2_ep": {
-          "x": 0,
-          "y": 0
+        "m1_ep": {
+          "x": 135,
+          "y": 185
         }
       },
       "teleporters": [
         {
           "at": {
-            "x": 144,
+            "x": 158,
             "y": 176,
-            "width": 8,
+            "width": 2,
             "height": 48
           },
           "target": {
@@ -31,8 +31,8 @@
       "height": 10,
       "entry_points": {
         "m2_ep": {
-          "x": 50,
-          "y": 50
+          "x": 0,
+          "y": 0
         }
       },
       "teleporters": [
