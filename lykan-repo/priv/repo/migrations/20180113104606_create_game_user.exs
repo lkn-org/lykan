@@ -6,7 +6,7 @@ defmodule Lykan.Repo.Migrations.CreateGameUser do
   end
 
   defp table() do
-    table = Keyword.get(Application.get_env(:lykan_repo, Lykan.Repo), :database, "lykan")
+    Keyword.get(Application.get_env(:lykan_repo, Lykan.Repo), :database, "lykan")
   end
 
   def up do
