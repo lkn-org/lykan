@@ -20,34 +20,8 @@ defmodule Lykan do
     defp loop_acceptor(server, map_key) do
       client = Web.accept!(server)
 
-      task(fn -> serve(client, map_key) end)
+      task(fn -> Lykan.Puppeteer.Player.accept(client, map_key) end)
       loop_acceptor(server, map_key)
-    end
-
-    defp serve(client, map_key) do
-      Socket.Web.accept!(client)
-
-      # spawn a character for this player
-      chara_key = UUID.uuid4()
-      Lykan.Character.spawn(chara_key)
-
-      # spawn a player puppeteer and find an instance
-      puppeteer_key = UUID.uuid4()
-      Lykan.Puppeteer.Player.start_link(puppeteer_key, client, chara_key)
-      Lykan.Puppeteer.Player.goto(puppeteer_key, map_key)
-
-      recv(puppeteer_key, client)
-    end
-
-    defp recv(puppeteer_key, client) do
-      case Web.recv(client) do
-        {:ok, {:text, msg}} ->
-          Lykan.Puppeteer.Player.inject(puppeteer_key, msg)
-
-          recv(puppeteer_key, client)
-        _ ->
-          Lkn.Core.Puppeteer.stop(puppeteer_key)
-      end
     end
 
     defp task(lambda) do

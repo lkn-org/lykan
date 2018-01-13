@@ -195,4 +195,30 @@ defmodule Lykan.Puppeteer.Player do
     # we kill our puppet
     Lkn.Core.Entity.stop(state.puppet)
   end
+
+  def accept(client, default_map_key) do
+    Socket.Web.accept!(client)
+
+    # spawn a character for this player
+    chara_key = UUID.uuid4()
+    Lykan.Character.spawn(chara_key)
+
+    # spawn a player puppeteer and find an instance
+    puppeteer_key = UUID.uuid4()
+    Lykan.Puppeteer.Player.start_link(puppeteer_key, client, chara_key)
+    Lykan.Puppeteer.Player.goto(puppeteer_key, default_map_key)
+
+    recv(puppeteer_key, client)
+  end
+
+  defp recv(puppeteer_key, client) do
+    case Socket.Web.recv(client) do
+      {:ok, {:text, msg}} ->
+        Lykan.Puppeteer.Player.inject(puppeteer_key, msg)
+
+        recv(puppeteer_key, client)
+      _ ->
+        Lkn.Core.Puppeteer.stop(puppeteer_key)
+    end
+  end
 end
