@@ -1,6 +1,10 @@
 export PATH := $(shell npm bin):${PATH}
+JS_SRC := $(shell find src/ -name '*.js')
 
-.PHONY: webpack
+.PHONY:
 
-webpack:
+index.js: .npm ${JS_SRC}
 	webpack
+
+.npm: package.json
+	npm install
