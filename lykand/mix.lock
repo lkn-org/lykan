@@ -7,7 +7,7 @@
   "ecto": {:hex, :ecto, "2.2.7", "2074106ff4a5cd9cb2b54b12ca087c4b659ddb3f6b50be4562883c1d763fb031", [:mix], [{:db_connection, "~> 1.1", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.2", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.8.0", [hex: :mariaex, optional: true]}, {:poison, "~> 2.2 or ~> 3.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.13.0", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0", [hex: :sbroker, optional: true]}]},
   "esqlite": {:hex, :esqlite, "0.2.3", "1a8b60877fdd3d50a8a84b342db04032c0231cc27ecff4ddd0d934485d4c0cd5", [:rebar3], []},
   "ex_doc": {:hex, :ex_doc, "0.18.1", "37c69d2ef62f24928c1f4fdc7c724ea04aecfdf500c4329185f8e3649c915baf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, optional: false]}]},
-  "lkn_core": {:hex, :lkn_core, "0.3.0", "338aa881c1068ad1329a688af90af95192e95b0bd4712f40bc42141567caf96b", [:mix], [{:beacon, "~> 1.1", [hex: :beacon, optional: false]}, {:lkn_prelude, "~> 0.1.2", [hex: :lkn_prelude, optional: false]}, {:uuid, "~> 1.1", [hex: :uuid, optional: false]}]},
+  "lkn_core": {:hex, :lkn_core, "0.4.1", "b75e61ae7f2d9a753d2b8befcc0a2583b5c651d64d1db337c8c95126ae95e86a", [:mix], [{:beacon, "~> 1.1", [hex: :beacon, optional: false]}, {:lkn_prelude, "~> 0.1.2", [hex: :lkn_prelude, optional: false]}, {:uuid, "~> 1.1", [hex: :uuid, optional: false]}]},
   "lkn_prelude": {:hex, :lkn_prelude, "0.1.2", "a5daa06c097bc00b9c6f77e7c02c028adc4fd7656445bfffa92e021eeb8375dd", [:mix], []},
   "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], []},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},

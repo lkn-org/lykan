@@ -44,10 +44,9 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :lykan do
-  set version: current_version(:lykan)
+release :lykand do
+  set version: current_version(:lykand)
   set applications: [
     :runtime_tools
   ]
 end
-

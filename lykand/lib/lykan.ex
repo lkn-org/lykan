@@ -51,7 +51,7 @@ defmodule Lykan do
     auth_port = Application.get_env(:lykand, :auth_port)
 
     children = [
-      supervisor(Lykan.Repo, [[name: Lykan.Repo]], restart: :transient),
+      #supervisor(Lykan.Repo, [[name: Lykan.Repo]], restart: :transient),
       supervisor(Lykan.Map.Sup, [], restart: :transient),
       supervisor(Lykan.Character.Sup, [], restart: :transient),
       supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),

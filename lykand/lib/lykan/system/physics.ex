@@ -158,7 +158,16 @@ defsystem Lykan.System.Physics do
     State.new(map_key, w, h)
   end
 
-  def puppet_enter(state, _instance_key, _map_key, _puppets, puppet_key) do
+  def puppet_enter(state, _instance_key, map_key, _puppets, puppet_key, opts) do
+    case Keyword.fetch(opts, :entry_point) do
+      {:ok, entry_point} ->
+        vec = World.get_entry_point(map_key, entry_point)
+        Body.set_position(puppet_key, vec)
+        notify(&Lykan.Puppeteer.notify(&1, PuppetMoves.craft(puppet_key, vec, [])))
+      :error ->
+        :ok
+    end
+
     vec = fn -> Body.get_position(puppet_key) end
     bod = Body.get_box(puppet_key)
 

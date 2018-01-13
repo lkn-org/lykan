@@ -160,14 +160,12 @@ defmodule Lykan.Puppeteer.Player do
 
       # register to a new instance
       instance_key = Lkn.Core.Pool.register_puppeteer(msg.map, key, __MODULE__)
-      Lykan.System.Physics.Body.set_position(state.puppet, Vector.new(0, 10))
-
-      # place the puppet (TODO: we should do better)
-      vec = Lykan.System.Physics.World.get_entry_point(msg.map, msg.entry_point)
-      Lykan.System.Physics.Body.set_position(state.puppet, vec)
 
       # register our pupppet
-      Lkn.Core.Instance.register_puppet(instance_key, state.puppet)
+      opts = %{
+        Lykan.System.Physics => [entry_point: msg.entry_point],
+      }
+      Lkn.Core.Instance.register_puppet(instance_key, state.puppet, opts)
 
       cast_return(instance: Option.some(instance_key), map_key: msg.map)
     else

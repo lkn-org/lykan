@@ -32,7 +32,7 @@
       "entry_points": {
         "m2_ep": {
           "x": 0,
-          "y": 0
+          "y": 10
         }
       },
       "teleporters": [

@@ -27,7 +27,7 @@ defsystem Lykan.System.Appearance do
     :ok
   end
 
-  def puppet_enter(_no_state, _instance_key, map_key, _puppets, key) do
+  def puppet_enter(_no_state, _instance_key, map_key, _puppets, key, _opts) do
     c = Component.get_color(map_key)
     Component.set_color(key, c)
 
