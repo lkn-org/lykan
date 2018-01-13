@@ -13,10 +13,10 @@
       "teleporters": [
         {
           "at": {
-            "x": 216,
-            "y": 336,
-            "width": 24,
-            "height": 24
+            "x": 144,
+            "y": 176,
+            "width": 16,
+            "height": 48
           },
           "target": {
             "map": "m2",

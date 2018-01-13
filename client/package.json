@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "description": "HTML5 lykan client using PIXI.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pixi.js": "^4.6.2",
+    "pixi-tiledmap": "^1.8.2"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0"
+  },
+  "author": "lthms <contact@thomasletan.fr>",
+  "license": "GPL-3.0",
+  "private": true
+}
