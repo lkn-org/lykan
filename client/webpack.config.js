@@ -4,6 +4,6 @@ module.exports = {
         filename: 'client.js',
     },
     node: {
-        fs: "empty"
+        fs: 'empty'
     }
 };

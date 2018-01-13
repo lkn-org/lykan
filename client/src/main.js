@@ -6,7 +6,7 @@ import { SCREEN_WIDTH
        , TILE_SIZE
        } from './constant.js';
 import * as PIXI from 'pixi.js';
-import pixiTiled from 'pixi-tiledmap';
+import 'pixi-tiledmap';
 
 // Application to draw things
 let app = new PIXI.Application({
@@ -31,8 +31,10 @@ let state = {
 document.body.appendChild(app.view);
 
 PIXI.loader
-  .add("assets/character.png")
-  .load(setup);
+    .add("assets/character.png")
+    .add("assets/m1.tmx")
+    .add("assets/m2.tmx")
+    .load(setup);
 
 function setup() {
     // init websocket listening
@@ -49,13 +51,6 @@ function setup() {
     state.camera = new PIXI.Container();
     app.stage.addChild(state.camera);
     state.camera.visible = true;
-
-    // init map object
-    state.map = new PIXI.Graphics();
-    state.map.beginFill(0xababab);
-    state.map.drawRect(0, 0, 1, 1);
-    state.map.endFill();
-    state.camera.addChild(state.map);
 
     // init game loop
     app.ticker.add(delta => game_loop(delta))
@@ -93,9 +88,13 @@ function listen_ws(event) {
             remove_puppet(pk);
         }
 
-        // then resize the map
-        state.map.width = message.map.digest.width * TILE_SIZE;
-        state.map.height = message.map.digest.height * TILE_SIZE;
+        // then display the map
+        let map_tmx = "assets/" + message.map.map_key + ".tmx";
+        state.camera.removeChild(state.map);
+        state.map = new PIXI.extras.TiledMap(map_tmx);
+        state.camera.addChild(state.map);
+        // state.map.width = message.map.digest.width * TILE_SIZE;
+        // state.map.height = message.map.digest.height * TILE_SIZE;
 
         // then display the puppets already inside
         for (var pk in message.puppets) {

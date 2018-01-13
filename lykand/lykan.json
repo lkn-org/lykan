@@ -15,7 +15,7 @@
           "at": {
             "x": 144,
             "y": 176,
-            "width": 16,
+            "width": 8,
             "height": 48
           },
           "target": {
@@ -39,9 +39,9 @@
         {
           "at": {
             "x": 0,
-            "y": 60,
-            "width": 24,
-            "height": 24
+            "y": 0,
+            "width": 8,
+            "height": 32
           },
           "target": {
             "map": "m1",
