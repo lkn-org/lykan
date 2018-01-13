@@ -1,4 +1,4 @@
-defmodule LykanData.Mixfile do
+defmodule Lykan.Repo.Mixfile do
   use Mix.Project
 
   def project do
