@@ -1,7 +1,7 @@
 defmodule Lykan do
   import Supervisor.Spec
 
-  defmodule Connect do
+  defmodule Game do
     alias Socket.Web
 
     def server(port) do
@@ -30,12 +30,14 @@ defmodule Lykan do
   end
 
   def start(_type, _args) do
+    game_port = Application.get_env(:lykand, :game_port)
+
     children = [
       supervisor(Lykan.Repo, [[name: Lykan.Repo]], restart: :transient),
       supervisor(Lykan.Map.Sup, [], restart: :transient),
       supervisor(Lykan.Character.Sup, [], restart: :transient),
       supervisor(Task.Supervisor, [[name: Lykan.Tasks]], restart: :transient),
-      worker(Task, [Connect, :server, [4000]], restart: :transient),
+      worker(Task, [Game, :server, [game_port]], restart: :transient),
     ]
 
     Supervisor.start_link(children,

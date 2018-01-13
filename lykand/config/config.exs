@@ -1,6 +1,8 @@
 use Mix.Config
 
-config :lykand, ecto_repos: [Lykan.Repo]
+config :lykand,
+  ecto_repos: [Lykan.Repo],
+  game_port: 4000
 
 config :lykan_repo, Lykan.Repo,
   adapter: Ecto.Adapters.Postgres,
