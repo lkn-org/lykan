@@ -3,7 +3,7 @@ defmodule Lykan.Mixfile do
 
   def project do
     [
-      app:              :lykan,
+      app:              :lykand,
       version:          "0.1.0",
       elixir:           "~> 1.5",
       start_permanent:  Mix.env == :prod,
@@ -27,13 +27,13 @@ defmodule Lykan.Mixfile do
     [
       {:uuid, "~> 1.1"},
       {:lykan_repo, path: "../lykan-repo"},
-      {:lkn_core, path: "../lkn-core"},
-      {:lkn_physics, path: "../lkn-physics"},
+      {:lkn_core, path: "../../lkn-core"},
+      {:lkn_physics, path: "../../lkn-physics"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
       {:socket, "~> 0.3"},
       {:poison, "~> 3.1.0"},
-      {:sqlite_ecto2, "~> 2.2"},
+      {:postgrex, "~> 0.13"},
       {:ecto, "~> 2.1"},
 
       # development

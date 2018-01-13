@@ -6,6 +6,8 @@ and there is not much to see.
 
 ## Getting Started
 
+### Compiling From Source
+
 *lykan* uses `pijul`, a young version control system written in rust.
 
 ```
@@ -25,10 +27,26 @@ pijul clone https://nest.pijul.com/lthms/lkn-core
 If everything went fine, you are good to go:
 
 ```
-cd lykan
+cd lykand
 mix deps.get
 mix compile
 ```
+
+### Setting Up Databases
+
+The `lykan_repo` library is responsible for correctly setting up the databases
+and provided the related Elixir functions to manipulate them. The only thing it
+requires is a user (`lykan_dev` in dev mode) with enough privileges to create
+databases, tables and users.
+
+```
+cd lykan-repo
+mix deps.get
+mix ecto.create
+mix ecto.migrate
+```
+
+### Compiling From Source
 
 The *lykan* repository brings a file called `lykan.json`. You can see it as some
 sort of “game project”, as *lykan* is still pretty generic. The `:lykan`
@@ -40,6 +58,7 @@ process will be able to read it.
 Once it is done, you can start the daemon:
 
 ```
+cd lykand
 iex -S mix
 ```
 
