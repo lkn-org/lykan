@@ -62,7 +62,11 @@ function game_loop(delta) {
         var y1 = a.y;
         var y2 = b.y;
 
-        if (y1 < y2) {
+        if (a == state.map) {
+            return -1;
+        } else if (b == state.map) {
+            return 1;
+        } else if (y1 < y2) {
             return -1;
         } else if (y1 == y2) {
             return 0;
