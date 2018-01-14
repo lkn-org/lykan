@@ -22,7 +22,11 @@ let ws;
 // Game state
 let state = {
     camera: {},
-    map: {},
+    scene: {},
+    map: {
+        width: 0,
+        height: 0
+    },
     puppets: {},
     main: {},
     controls: [],
@@ -58,22 +62,20 @@ function setup() {
 
 function game_loop(delta) {
     // reorder children so that upper entities appear behind lower ones
-    state.camera.children.sort((a, b) => {
-        var y1 = a.y;
-        var y2 = b.y;
+    if('layers' in state.scene) {
+        state.scene.layers["objects"].children.sort((a, b) => {
+            var y1 = a.y;
+            var y2 = b.y;
 
-        if (a == state.map) {
-            return -1;
-        } else if (b == state.map) {
-            return 1;
-        } else if (y1 < y2) {
-            return -1;
-        } else if (y1 == y2) {
-            return 0;
-        } else {
-            return 1;
-        }
-    });
+            if (y1 < y2) {
+                return -1;
+            } else if (y1 == y2) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
+    }
 }
 
 function listen_ws(event) {
@@ -94,11 +96,12 @@ function listen_ws(event) {
 
         // then display the map
         let map_tmx = "assets/" + message.map.map_key + ".tmx";
-        state.camera.removeChild(state.map);
-        state.map = new PIXI.extras.TiledMap(map_tmx);
-        state.camera.addChild(state.map);
-        // state.map.width = message.map.digest.width * TILE_SIZE;
-        // state.map.height = message.map.digest.height * TILE_SIZE;
+        state.camera.removeChild(state.scene);
+        state.scene = new PIXI.extras.TiledMap(map_tmx);
+        state.camera.addChild(state.scene);
+
+        state.map.width = message.map.digest.width * TILE_SIZE;
+        state.map.height = message.map.digest.height * TILE_SIZE;
 
         // then display the puppets already inside
         for (var pk in message.puppets) {
@@ -127,7 +130,7 @@ function listen_ws(event) {
 }
 
 function remove_puppet(pk) {
-    state.camera.removeChild(state.puppets[pk]);
+    state.scene.layers["objects"].removeChild(state.puppets[pk]);
     delete state.puppets[pk];
 }
 
@@ -141,7 +144,7 @@ function add_new_puppet(pk, digest) {
     state.puppets[pk].height = CHARACTER_HEIGHT;
     place_puppet(pk, digest.x, digest.y);
 
-    state.camera.addChild(state.puppets[pk]);
+    state.scene.layers["objects"].addChild(state.puppets[pk]);
 
     if (pk == state.main) {
         center_camera();
