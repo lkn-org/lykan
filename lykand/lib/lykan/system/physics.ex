@@ -58,6 +58,15 @@ defsystem Lykan.System.Physics do
 
   #############################################################################
 
+  defmessage PuppetChangesDirection do
+    opcode "PUPPET_DIRECTION"
+
+    content [
+      :puppet_key,
+      :direction,
+    ]
+  end
+
   defmessage PuppetStarts do
     opcode "PUPPET_STARTS"
 
@@ -196,6 +205,8 @@ defsystem Lykan.System.Physics do
   #############################################################################
   cast puppet_changes_dir(puppet_key :: Lkn.Core.Puppet.k, dir :: direction) do
     Body.set_direction(puppet_key, dir)
+
+    notify(&Lykan.Puppeteer.notify(&1, PuppetChangesDirection.craft(puppet_key, dir)))
 
     cast_return()
   end

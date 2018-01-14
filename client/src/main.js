@@ -6,6 +6,7 @@ import { SCREEN_WIDTH
        , TILE_SIZE
        } from './constant.js';
 import * as PIXI from 'pixi.js';
+import * as Character from './character.js';
 import 'pixi-tiledmap';
 
 // Application to draw things
@@ -126,6 +127,9 @@ function listen_ws(event) {
             center_camera();
         }
         break;
+    case "PUPPET_DIRECTION":
+        state.puppets[message.puppet_key].texture.frame = Character.get_frame(message.direction);
+        break;
     }
 }
 
@@ -136,8 +140,8 @@ function remove_puppet(pk) {
 
 function add_new_puppet(pk, digest) {
     let texture = PIXI.utils.TextureCache["assets/character.png"];
-    let frame = new PIXI.Rectangle(25, 65, CHARACTER_WIDTH, CHARACTER_HEIGHT);
-    texture.frame = frame;
+
+    texture.frame = Character.get_frame("down");
 
     state.puppets[pk] = new PIXI.Sprite(texture);
     state.puppets[pk].width = CHARACTER_WIDTH;
