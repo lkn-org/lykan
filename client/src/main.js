@@ -112,6 +112,14 @@ function listen_ws(event) {
         // we can display our scene now
         state.camera.visible = true;
         break;
+    case "PUPPET_STARTS":
+        state.puppets[message.puppet_key].isMoving = true;
+        state.puppets[message.puppet_key].gotoAndPlay(0);
+        break;
+    case "PUPPET_STOPS":
+        state.puppets[message.puppet_key].isMoving = false;
+        state.puppets[message.puppet_key].gotoAndStop(0);
+        break;
     case "PUPPET_ENTERS":
         add_new_puppet(message.puppet_key, message.digest);
         break;
@@ -128,7 +136,16 @@ function listen_ws(event) {
         }
         break;
     case "PUPPET_DIRECTION":
-        state.puppets[message.puppet_key].texture.frame = Character.get_frame(message.direction);
+        state.puppets[message.puppet_key].textures =
+            Character.get_textures_for(
+                "assets/character.png",
+                message.direction,
+                "walk"
+            );
+
+        if(state.puppets[message.puppet_key].isMoving) {
+            state.puppets[message.puppet_key].gotoAndPlay(0);
+        }
         break;
     }
 }
@@ -139,11 +156,12 @@ function remove_puppet(pk) {
 }
 
 function add_new_puppet(pk, digest) {
-    let texture = PIXI.utils.TextureCache["assets/character.png"];
+    let textures = Character.get_textures_for("assets/character.png", "down", "walk");
 
-    texture.frame = Character.get_frame("down");
+    state.puppets[pk] = new PIXI.extras.AnimatedSprite(textures);
 
-    state.puppets[pk] = new PIXI.Sprite(texture);
+    state.puppets[pk].isMoving = false;
+    state.puppets[pk].animationSpeed = 0.08;
     state.puppets[pk].width = CHARACTER_WIDTH;
     state.puppets[pk].height = CHARACTER_HEIGHT;
     place_puppet(pk, digest.x, digest.y);
