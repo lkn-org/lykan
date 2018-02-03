@@ -100,6 +100,12 @@ function listenWS(event) {
       state.scene = new PIXI.extras.TiledMap(mapTmx);
       state.camera.addChild(state.scene);
 
+      Object.keys(keys).forEach((keyCode) => {
+        if (keys[keyCode].isDown) {
+          keys[keyCode].release();
+          keys[keyCode].press();
+        }
+      });
       state.map.width = message.map.digest.width * TILE_SIZE;
       state.map.height = message.map.digest.height * TILE_SIZE;
 
