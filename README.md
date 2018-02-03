@@ -50,10 +50,9 @@ mix ecto.migrate
 
 The *lykan* repository brings a file called `lykan.json`. You can see it as some
 sort of “game project”, as *lykan* is still pretty generic. The `:lykan`
-application will try to read `/opt/lykan/lykan.json` at startup, so you need to
-create this repository. You may need a root access to your machine to do that;
-in such a case, don't forget to correctly set the read permission so that your
-process will be able to read it.
+application will try to read `lykan.json` at startup, so this file needs to be
+readable by the application. You can set the full path to this file as the
+environment variable `LYKAN_CONFIG_FILE`
 
 Once it is done, you can start the daemon:
 
@@ -62,7 +61,16 @@ cd lykand
 iex -S mix
 ```
 
-Use your favorite browser to display the `client/client.html` webpages. It will
-connect you to the game, and you will be able to “play.”
+You will then need to build the client application and serve it. Here is how
+to achieve this for development purpose:
+
+```
+cd client
+npm install
+npm run start:dev
+```
+
+It will compile the JavaScript client and open a browser with `client.html`,
+connecting you to the game, and letting you “play.”
 
 ![client screenshot](client/screenshot.png)
