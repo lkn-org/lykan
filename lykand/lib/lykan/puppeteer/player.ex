@@ -12,19 +12,13 @@ defmodule Lykan.Puppeteer.Player do
       :puppet_key,
     ]
   end
+
   defmessage PuppetEnter do
     opcode "PUPPET_ENTERS"
     content [
       :puppet_key,
       :digest,
     ]
-
-    def new(key, digest) do
-      %PuppetEnter{
-        puppet_key: key,
-        digest: digest,
-      }
-    end
   end
 
   defmessage LeaveMap do
@@ -38,12 +32,6 @@ defmodule Lykan.Puppeteer.Player do
     content [
       :puppet_key
     ]
-
-    def new(key) do
-      %PuppetLeave{
-        puppet_key: key
-      }
-    end
   end
 
   defmessage InstanceDigest do
@@ -152,13 +140,13 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   def puppet_enter(state, _instance_key, puppet_key, digest) do
-    Lykan.Message.send(state.socket, PuppetEnter.new(puppet_key, digest))
+    Lykan.Message.send(state.socket, PuppetEnter.craft(puppet_key, digest))
 
     cast_return()
   end
 
   def puppet_leave(state, _instance_key, puppet_key) do
-    Lykan.Message.send(state.socket, PuppetLeave.new(puppet_key))
+    Lykan.Message.send(state.socket, PuppetLeave.craft(puppet_key))
 
     cast_return()
   end
