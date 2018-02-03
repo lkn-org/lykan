@@ -4,14 +4,16 @@
   "description": "HTML5 lykan client using PIXI.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "webpack-dev-server --open-page '/client.html'"
   },
   "dependencies": {
     "pixi.js": "^4.6.2",
     "pixi-tiledmap": "^1.8.4"
   },
   "devDependencies": {
-    "webpack": "^3.10.0"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
   },
   "author": "lthms <contact@thomasletan.fr>",
   "license": "GPL-3.0",
