@@ -27,6 +27,11 @@ defmodule Lykan.Puppeteer.Player do
     end
   end
 
+  defmessage LeaveMap do
+    opcode "LEAVE_MAP"
+    content []
+  end
+
   defmessage PuppetLeave do
     opcode "PUPPET_LEAVES"
 
@@ -163,6 +168,9 @@ defmodule Lykan.Puppeteer.Player do
       # leaving the current instance
       Lkn.Core.Instance.unregister_puppet(instance_key, state.puppet)
       Lkn.Core.Instance.unregister_puppeteer(instance_key, key)
+
+      # notify the client
+      Lykan.Message.send(state.socket, LeaveMap.craft())
 
       # register to a new instance
       instance_key = Lkn.Core.Pool.register_puppeteer(msg.map, key, __MODULE__)

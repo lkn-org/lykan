@@ -38,6 +38,7 @@ const state = {
   puppets: {},
   main: {},
   controls: [],
+  in_game: false,
 };
 
 function centerCamera() {
@@ -90,6 +91,10 @@ function listenWS(event) {
       state.main = message.puppet_key;
       break;
     }
+    case 'LEAVE_MAP': {
+      state.in_game = false;
+      break;
+    }
     case 'INSTANCE_DIGEST': {
       // we have joined a new instance, first let us remove all previous puppets
       Object.keys(state.puppets).filter(Boolean).forEach(removePuppet);
@@ -110,6 +115,14 @@ function listenWS(event) {
 
       // we can display our scene now
       state.camera.visible = true;
+      state.in_game = true;
+
+      // we now need to see if the player wants to move, by looking at
+      // state.controls.
+      if (state.controls.length >= 1) {
+        ws.send('MOVE');
+        ws.send(state.controls[state.controls.length - 1]);
+      }
       break;
     }
     case 'PUPPET_STARTS': {
@@ -197,22 +210,36 @@ function setupKey(code, string) {
 
   handler.press = () => {
     state.controls.push(string);
-    ws.send(string);
 
-    if (state.controls.length === 1) {
-      ws.send('MOVE');
+    // we are in a map, so we notify the server according to the state of
+    // state.controls.
+    if (state.in_game) {
+      // at least we chane our puppet direction
+      ws.send(string);
+
+      // and if no key was pressed before, we start moving
+      if (state.controls.length === 1) {
+        ws.send('MOVE');
+      }
     }
   };
 
   handler.release = () => {
     state.controls = state.controls.filter(x => x !== string);
 
-    if (!state.controls.length) {
-      ws.send('STOP');
-    } else {
-      ws.send(state.controls[state.controls.length - 1]);
+    // we are in a map, so we notify the server according to the state of
+    // state.controls.
+    if (state.in_game) {
+      if (!state.controls.length) {
+        // if the stack of controls is empty, this means we have to stop
+        ws.send('STOP');
+      } else {
+        // otherwise, we take the top of the stack as the new direction
+        ws.send(state.controls[state.controls.length - 1]);
+      }
     }
   };
+
   keys[code] = handler;
 }
 
