@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/",
     "start:dev": "webpack-dev-server --open-page '/client.html'"
   },
   "dependencies": {
@@ -12,10 +13,23 @@
     "pixi-tiledmap": "^1.8.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.39",
+    "@babel/preset-env": "^7.0.0-beta.39",
+    "babel-loader": "^8.0.0-beta.0",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
   },
   "author": "lthms <contact@thomasletan.fr>",
   "license": "GPL-3.0",
-  "private": true
+  "private": true,
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "env": {
+      "browser": true,
+      "node": true
+    }
+  }
 }

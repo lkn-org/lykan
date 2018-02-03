@@ -1,57 +1,57 @@
 import * as PIXI from 'pixi.js';
 
-import { CHARACTER_WIDTH
-       , CHARACTER_HEIGHT
-       } from './constant.js';
+import {
+  CHARACTER_WIDTH,
+  CHARACTER_HEIGHT,
+} from './constant.json';
 
-let frames = {};
+const frames = {};
 
-let lines = {
-       "up": 0,
-       "right": 1,
-       "down": 2,
-       "left": 3,
+const lines = {
+  up: 0,
+  right: 1,
+  down: 2,
+  left: 3,
 };
 
-let columns = {
-       "walk": 0,
-       "attack": 3,
-       "magic": 6,
+const columns = {
+  walk: 0,
+  attack: 3,
+  magic: 6,
 };
 
-let seq = [1, 2, 0];
+const seq = [1, 2, 0];
 
-function get_textures(asset) {
-       if (!(asset in frames)) {
-              let texture = PIXI.loader.resources[asset].texture;
+function getTextures(asset) {
+  if (!(asset in frames)) {
+    const { texture } = PIXI.loader.resources[asset];
 
-              frames[asset] = {};
-              for (var dir in lines) {
-                     frames[asset][dir] = {};
+    frames[asset] = {};
+    Object.keys(lines).forEach((dir) => {
+      frames[asset][dir] = {};
 
-                     for (var action in columns) {
-                            frames[asset][dir][action] = [];
+      Object.keys(columns).forEach((action) => {
+        frames[asset][dir][action] = [];
 
-                            for (var offset in seq) {
-                                   let newTexture = new PIXI.Texture(
-                                          texture,
-                                          new PIXI.Rectangle(
-                                                 CHARACTER_WIDTH * (columns[action] + seq[offset]),
-                                                 lines[dir] * CHARACTER_HEIGHT,
-                                                 CHARACTER_WIDTH,
-                                                 CHARACTER_HEIGHT
-                                          )
-                                   );
+        Object.keys(seq).forEach((offset) => {
+          const newTexture = new PIXI.Texture(
+            texture,
+            new PIXI.Rectangle(
+              CHARACTER_WIDTH * (columns[action] + seq[offset]),
+              lines[dir] * CHARACTER_HEIGHT,
+              CHARACTER_WIDTH,
+              CHARACTER_HEIGHT,
+            ),
+          );
 
-                                   frames[asset][dir][action].push(newTexture);
-                            }
-                     }
-              }
-       }
+          frames[asset][dir][action].push(newTexture);
+        });
+      });
+    });
+  }
 
-       return frames[asset];
+  return frames[asset];
 }
 
-export function get_textures_for(asset, dir, action) {
-       return get_textures(asset)[dir][action];
-}
+// eslint-disable-next-line import/prefer-default-export
+export const getTexturesFor = (asset, dir, action) => getTextures(asset)[dir][action];
