@@ -136,6 +136,12 @@ defmodule Lykan.Puppeteer.Player do
     cast_return()
   end
 
+  defp consume_cmd(cmd, _state, _instance_key) do
+    # unknown command, we bail and do nothing for now
+
+    cast_return()
+  end
+
   def leave_instance(state, _instance_key) do
     cast_return()
   end
