@@ -35,9 +35,13 @@ defmodule Lykan do
     end
 
     defp loop_acceptor(server, map_key) do
-      client = Web.accept!(server)
+      try do
+        client = Web.accept!(server)
+        Lykan.task(fn -> Lykan.Puppeteer.Player.accept(client, map_key) end)
+      rescue
+        _ -> :ok
+      end
 
-      Lykan.task(fn -> Lykan.Puppeteer.Player.accept(client, map_key) end)
       loop_acceptor(server, map_key)
     end
   end
