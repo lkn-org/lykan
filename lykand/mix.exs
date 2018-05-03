@@ -27,7 +27,7 @@ defmodule Lykan.Mixfile do
     [
       {:uuid, "~> 1.1"},
       {:lykan_repo, path: "../lykan-repo"},
-      {:lkn_core, "~> 0.4.1"},
+      {:lkn_core, "~> 0.4.3"},
       {:lkn_physics, path: "../../lkn-physics"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
