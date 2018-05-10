@@ -6,6 +6,14 @@ alias Lkn.Physics.Geometry.Vector
 alias Lykan.System.Physics.Teleporter
 
 defmap Lykan.Map do
+  defmodule Combat do
+    use Lykan.System.Combat.Component.Map
+
+    def init_state(map_key) do
+      {:ok, nil}
+    end
+  end
+
   defmodule World do
     use Lykan.System.Physics.World
 
@@ -51,7 +59,7 @@ defmap Lykan.Map do
     end
   end
 
-  @components [Appearance, World]
+  @components [Appearance, World, Combat]
 
   def start_link(key, c) do
     Lkn.Core.Entity.start_link(__MODULE__, key, c)

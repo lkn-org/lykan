@@ -129,6 +129,18 @@ defmodule Lykan.Puppeteer.Player do
     cast_return()
   end
 
+  defp consume_cmd("ATTACK", state, instance_key) do
+    Lykan.System.Combat.puppet_start_attacking(instance_key, state.puppet)
+
+    cast_return()
+  end
+
+  defp consume_cmd("STOP_ATTACK", state, instance_key) do
+    Lykan.System.Combat.puppet_stop_attacking(instance_key, state.puppet)
+
+    cast_return()
+  end
+
   defp consume_cmd(cmd, _state, _instance_key) do
     # unknown command, we bail and do nothing for now
 

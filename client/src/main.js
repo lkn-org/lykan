@@ -70,9 +70,12 @@ function addNewPuppet(pk, digest) {
   state.puppets[pk] = new PIXI.extras.AnimatedSprite(textures);
 
   state.puppets[pk].isMoving = false;
+  state.puppets[pk].isAttacking = false;
   state.puppets[pk].animationSpeed = 0.08;
   state.puppets[pk].width = CHARACTER_WIDTH;
   state.puppets[pk].height = CHARACTER_HEIGHT;
+  state.puppets[pk].direction = 'down';
+
   placePuppet(pk, digest.x, digest.y);
 
   state.scene.layers.objects.addChild(state.puppets[pk]);
@@ -127,12 +130,48 @@ function listenWS(event) {
     }
     case 'PUPPET_STARTS': {
       state.puppets[message.puppet_key].isMoving = true;
-      state.puppets[message.puppet_key].gotoAndPlay(0);
+
+      if (!state.puppets[message.puppet_key].isAttacking) {
+        state.puppets[message.puppet_key].gotoAndPlay(0);
+      }
+
       break;
     }
     case 'PUPPET_STOPS': {
       state.puppets[message.puppet_key].isMoving = false;
-      state.puppets[message.puppet_key].gotoAndStop(0);
+
+      if (!state.puppets[message.puppet_key].isAttacking) {
+        state.puppets[message.puppet_key].gotoAndStop(0);
+      }
+
+      break;
+    }
+    case 'PUPPET_STARTS_ATTACKING': {
+      state.puppets[message.puppet_key].isAttacking = true;
+      state.puppets[message.puppet_key].textures = Character.getTexturesFor(
+        'assets/character.png',
+        state.puppets[message.puppet_key].direction,
+        'attack',
+      );
+      state.puppets[message.puppet_key].gotoAndPlay(0);
+
+      break;
+    }
+    case 'PUPPET_STOPS_ATTACKING': {
+      state.puppets[message.puppet_key].isAttacking = false;
+
+      state.puppets[message.puppet_key].textures = Character.getTexturesFor(
+        'assets/character.png',
+        state.puppets[message.puppet_key].direction,
+        'walk',
+      );
+
+      if (state.puppets[message.puppet_key].isMoving) {
+        state.puppets[message.puppet_key].gotoAndPlay(0);
+      } else {
+        state.puppets[message.puppet_key].gotoAndStop(0);
+      }
+
       break;
     }
     case 'PUPPET_ENTERS': {
@@ -153,17 +192,30 @@ function listenWS(event) {
       }
       break;
     }
+    case 'PUPPET_HURTED': {
+      state.puppets[message.puppet_key].alpha *= 0.9;
+      break;
+    }
     case 'PUPPET_DIRECTION': {
+      let action = 'walk';
+      if (state.puppets[message.puppet_key].isAttacking) {
+        action = 'attack';
+      }
+
       state.puppets[message.puppet_key].textures =
         Character.getTexturesFor(
           'assets/character.png',
           message.direction,
-          'walk',
+          action,
         );
 
-      if (state.puppets[message.puppet_key].isMoving) {
+      state.puppets[message.puppet_key].direction = message.direction;
+
+      if (state.puppets[message.puppet_key].isMoving ||
+          state.puppets[message.puppet_key].isAttacking) {
         state.puppets[message.puppet_key].gotoAndPlay(0);
       }
+
       break;
     }
     default: break;
@@ -205,7 +257,21 @@ function keyboard(keyCode) {
   return key;
 }
 
-function setupKey(code, string) {
+function setupAttackKey(code) {
+  const handler = keyboard(code);
+
+  handler.press = () => {
+    ws.send('ATTACK');
+  };
+
+  handler.release = () => {
+    ws.send('STOP_ATTACK');
+  };
+
+  keys[code] = handler;
+}
+
+function setupMoveKey(code, string) {
   const handler = keyboard(code);
 
   handler.press = () => {
@@ -268,10 +334,11 @@ function setup() {
   ws.onmessage = listenWS;
 
   // setup the keyboard
-  setupKey(37, 'LEFT');
-  setupKey(38, 'UP');
-  setupKey(39, 'RIGHT');
-  setupKey(40, 'DOWN');
+  setupMoveKey(37, 'LEFT');
+  setupMoveKey(38, 'UP');
+  setupMoveKey(39, 'RIGHT');
+  setupMoveKey(40, 'DOWN');
+  setupAttackKey(85); // u
 
   // camera container
   state.camera = new PIXI.Container();

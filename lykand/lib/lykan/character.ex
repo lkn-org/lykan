@@ -5,6 +5,20 @@ alias Lkn.Physics.Geometry.Box
 import Lkn.Core.Puppet, only: [defpuppet: 2]
 
 defpuppet Lykan.Character do
+  defmodule Combat do
+    use Lykan.System.Combat.Component.Puppet
+
+    def init_state(_key) do
+      {:ok, nil}
+    end
+
+    def attack_zone(key, state) do
+      vec = Lykan.System.Physics.Body.get_position(key)
+      box = Lykan.System.Physics.Body.get_box(key)
+
+      {{box, vec}, state}
+    end
+  end
   defmodule Body do
     use Lykan.System.Physics.Body
 
@@ -57,7 +71,7 @@ defpuppet Lykan.Character do
     end
   end
 
-  @components [Appearance, Body]
+  @components [Appearance, Body, Combat]
 
   def start_link(key) do
     Lkn.Core.Entity.start_link(__MODULE__, key, :no_args)
