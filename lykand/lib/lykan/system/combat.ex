@@ -118,6 +118,7 @@ defsystem Lykan.System.Combat do
     # TODO: picking the first element of the list does not seems fair?
     case victims do
       [victim|_] -> notify(&Lykan.Puppeteer.notify(&1, PuppetHurted.craft(victim)))
+      _ -> :ok
     end
 
     cast_return()
