@@ -8,20 +8,22 @@ and there is not much to see.
 
 ### Compiling From Source
 
-*lykan* uses `pijul`, a young version control system written in rust.
+The *lykan* codebase is currently hosted on Github.
 
 ```
 mkdir lkn/
 cd lkn
-pijul clone https://nest.pijul.com/lthms/lykan
+git clone https://github.com/lkn-org/lykan
 ```
 
-*lykan* uses the upstream versions of `lkn-core` and `lkn-physics`, so you need
-to clone these repositories too.
+*lykan* uses the upstream versions of `lkn-repo` and `lkn-physics`, so
+you need to clone these repositories too.
 
 ```
-pijul clone https://nest.pijul.com/lthms/lkn-physics
-pijul clone https://nest.pijul.com/lthms/lkn-core
+cd ..
+git clone https://github.com/lkn-org/lkn-physics
+git clone https://github.com/lkn-org/lkn-repo
+cd lykan
 ```
 
 If everything went fine, you are good to go:
@@ -45,6 +47,8 @@ mix deps.get
 mix ecto.create
 mix ecto.migrate
 ```
+
+Currently, this is not used.
 
 ### Compiling From Source
 
@@ -73,4 +77,5 @@ npm run start:dev
 It will compile the JavaScript client and open a browser with `client.html`,
 connecting you to the game, and letting you “play.”
 
-![client screenshot](client/screenshot.png)
+Note that the current plan is to implement a native client in Lisp
+(because why not?). The project is called `lykanc`.
