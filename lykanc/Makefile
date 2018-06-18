@@ -7,7 +7,7 @@ bundle:
 	@rm -rf build/
 	@echo -e "\r[*] Remove old build"
 	@echo "[ ] Building"
-	@sbcl --eval "(ql:quickload :lykanc/bundle)" --eval "(lykanc.bundle:deliver)" --quit
+	@sbcl --eval "(ql:quickload :lykanc/bundle)" --eval "(lykanc/bundle:deliver)" --quit
 	@echo "[*] Building"
 
 .PHONY: bundle run
