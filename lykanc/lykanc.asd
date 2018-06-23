@@ -4,8 +4,11 @@
   :license  "GPLv3"
   :version "0.0.1"
   :serial t
-  :depends-on (trivial-gamekit)
+  :depends-on (trivial-gamekit
+               websocket-driver-client
+               jsown)
   :components ((:file "project")
+               (:file "message")
                (:file "lykanc")))
 
 (asdf:defsystem lykanc/bundle
