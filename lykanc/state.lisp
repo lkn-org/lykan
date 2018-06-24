@@ -50,10 +50,8 @@
   (gamekit:y (state-cursor-pos state)))
 
 (defun update-cursor (state dx dy)
-  (let ((vx (min (max 0 (+ (gamekit:x (state-cursor-pos state)) dx))
-                 *viewport-width*))
-        (vy (min (max 0 (+ (gamekit:y (state-cursor-pos state)) dy))
-                 *viewport-height*)))
+  (let ((vx (min (max 0 (+ (get-cursor-x state) dx)) *viewport-width*))
+        (vy (min (max 0 (+ (get-cursor-y state) dy)) *viewport-height*)))
     (force-cursor state vx vy)))
 
 (defun force-cursor (state x y)
