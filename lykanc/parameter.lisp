@@ -3,3 +3,4 @@
 (defparameter *viewport-width* 320)
 (defparameter *viewport-height* 240)
 (defparameter *scale* 2)
+(defparameter *cursor-size* 10)

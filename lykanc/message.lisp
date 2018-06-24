@@ -8,21 +8,15 @@
 (defun handle-instance-digest (message state)
   (let ((puppets (jsown:val message "puppets")))
     (jsown:do-json-keys (key puppet-desc) puppets
-        (let ((puppet (make-entity :x (jsown:val puppet-desc "x")
-                                   :y (jsown:val puppet-desc "y")
-                                   :width 24
-                                   :height 32)))
-          (add-puppet state key puppet)))))
+                        (add-puppet state key
+                                    (jsown:val puppet-desc "x")
+                                    (jsown:val puppet-desc "y")))))
 
 ;; PUPPET ENTERS
 (defun handle-puppet-enters (message state)
   (let* ((key (jsown:val message "puppet_key"))
-         (digest (jsown:val message "digest"))
-         (puppet (make-entity :x (jsown:val digest "x")
-                              :y (jsown:val digest "y")
-                              :width 24
-                              :height 32)))
-    (add-puppet state key puppet)))
+         (digest (jsown:val message "digest")))
+    (add-puppet state key (jsown:val digest "x") (jsown:val digest "y"))))
 
 ;; PUPPET MOVES
 (defun handle-puppet-moves (message state)

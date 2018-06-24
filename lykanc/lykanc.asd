@@ -5,6 +5,7 @@
   :version "0.0.1"
   :serial t
   :depends-on (trivial-gamekit
+               fairy
                websocket-driver-client
                jsown)
   :components ((:file "project")
