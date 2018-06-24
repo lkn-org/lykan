@@ -25,7 +25,7 @@
   (maphash (lambda (key value))
            (state-puppets state)))
 
-(defun center-camera-vec (state)
+(defun center-camera-vec (state vx vy)
   (let* ((main (state-main state))
          (puppet (gethash main (state-puppets state)))
          (dx (- (/ *viewport-width* 2)
@@ -34,4 +34,5 @@
          (dy (- (/ *viewport-height* 2)
                 (entity-y puppet)
                 (/ (entity-height puppet) 2))))
-    (gamekit:vec2 dx dy)))
+    (gamekit:vec2 (- dx (* 0.2 (- vx (/ *viewport-width* 2))))
+                  (- dy (* 0.2 (- vy (/ *viewport-height* 2)))))))
