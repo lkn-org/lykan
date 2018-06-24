@@ -8,6 +8,7 @@
                websocket-driver-client
                jsown)
   :components ((:file "project")
+               (:file "state")
                (:file "message")
                (:file "lykanc")))
 
