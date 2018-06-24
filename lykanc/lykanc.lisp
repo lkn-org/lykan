@@ -42,7 +42,7 @@
   (gamekit:bind-cursor
    (lambda (x y)
      (if *locked*
-         (update-cursor *state* x y *x* *y*))
+         (update-cursor *state* (- x *x*) (- y *y*)))
      (setf *x* x)
      (setf *y* y))))
 

@@ -49,12 +49,10 @@
 (defun get-cursor-y (state)
   (gamekit:y (state-cursor-pos state)))
 
-(defun update-cursor (state x y ox oy)
-  (let ((vx (min (max 0 (+ (gamekit:x (state-cursor-pos state))
-                           (- x ox)))
+(defun update-cursor (state dx dy)
+  (let ((vx (min (max 0 (+ (gamekit:x (state-cursor-pos state)) dx))
                  *viewport-width*))
-        (vy (min (max 0 (+ (gamekit:y (state-cursor-pos state))
-                           (- y oy)))
+        (vy (min (max 0 (+ (gamekit:y (state-cursor-pos state)) dy))
                  *viewport-height*)))
     (force-cursor state vx vy)))
 
@@ -67,8 +65,8 @@
   (update-camera state))
 
 (defun update-camera (state)
-  (let* ((cursor-x (gamekit:x (state-cursor-pos state)))
-         (cursor-y (gamekit:y (state-cursor-pos state)))
+  (let* ((cursor-x (get-cursor-x state))
+         (cursor-y (get-cursor-y state))
          (puppet (gethash (state-main state) (state-puppets state)))
          (puppet-x (gamekit:x (fairy:rectangle-origin puppet)))
          (puppet-y (gamekit:y (fairy:rectangle-origin puppet)))
