@@ -2,7 +2,7 @@
 
 ;; ATTRIBUTE_PUPPET
 (defun handle-attribute-puppet (message state)
-  (print state))
+  (attribute-puppet state (jsown:val message "puppet_key")))
 
 ;; INSTANCE_DIGEST
 (defun handle-instance-digest (message state)

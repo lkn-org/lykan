@@ -1,10 +1,5 @@
 (cl:in-package :lykanc)
 
-(defparameter *viewport-width* 320)
-(defparameter *viewport-height* 240)
-
-(defparameter *scale* 2)
-
 (gamekit:defgame app () ()
                  (:viewport-width (* *scale* *viewport-width*))
                  (:viewport-height (* *scale* *viewport-height*)))
@@ -31,12 +26,17 @@
 (defmethod gamekit:draw ((app app))
   (gamekit:with-pushed-canvas ()
     (gamekit:scale-canvas *scale* *scale*)
-    (maphash (lambda (key val)
-               (gamekit:draw-rect (gamekit:vec2 (entity-x val) (entity-y val))
-                                  (entity-width val)
-                                  (entity-height val)
-                                  :fill-paint (gamekit:vec4 0 0 0 1)))
-             (state-puppets *state*))))
+    (if (state-main *state*)
+        (progn
+          (let ((vec (center-camera-vec *state*)))
+            (gamekit:translate-canvas (gamekit:x vec) (gamekit:y vec)))
+          (maphash (lambda (key val)
+                     (gamekit:draw-rect (gamekit:vec2 (entity-x val) (entity-y val))
+                                        (entity-width val)
+                                        (entity-height val)
+                                        :fill-paint (gamekit:vec4 0 0 0 1)))
+                   (state-puppets *state*)))
+        (print "waiting for a character"))))
 
 (defun run ()
   (gamekit:start 'app))
