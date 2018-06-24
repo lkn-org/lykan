@@ -31,7 +31,9 @@
 (defun add-puppet (state key x y)
   (let ((puppet (fairy:new-rectangle x y 24 32 (gamekit:vec4 0 0 0 1))))
     (fairy:layer-add-child (state-objects state) puppet)
-    (setf (gethash key (state-puppets state)) puppet)))
+    (setf (gethash key (state-puppets state)) puppet))
+  (if (string= (state-main state) key)
+      (update-camera state)))
 
 (defun remove-puppet (state key)
   (fairy:layer-delete-child (state-objects state) (gethash key (state-puppets state)))
