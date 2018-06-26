@@ -2,52 +2,57 @@
 
 (defstruct entity x y width height)
 
-(defstruct state main root cursor-pos objects ui cursor-img puppets)
+(defstruct state main root cursor-pos objects ui cursor puppets)
 
 (defun init-state ()
-  (let ((root (fairy:init-root))
-        (ui (fairy:new-layer 0 0))
-        (objects (fairy:new-layer 0 0))
-        (cursor-img (fairy:new-rectangle (/ *cursor-size* 2)
-                                         (/ *cursor-size* 2)
-                                         *cursor-size*
-                                         *cursor-size*
-                                         (gamekit:vec4 0.8 0.3 0.9 1))))
-    (fairy:layer-add-child ui cursor-img)
-    (fairy:root-add-child root ui)
-    (fairy:root-add-child root objects)
+  (let ((root (make-instance 'fairy:layer))
+        (ui (make-instance 'fairy:layer))
+        (objects (make-instance 'fairy:layer))
+        (cursor-layer (make-instance 'fairy:layer))
+        (cursor-img (make-instance 'fairy:rectangle
+                                   :origin (gamekit:vec2 (- (/ *cursor-size* 2))
+                                                         (- (/ *cursor-size* 2)))
+                                   :height *cursor-size*
+                                   :width *cursor-size*
+                                   :color (gamekit:vec4 0.8 0.3 0.9 1))))
+    (fairy:add-child ui cursor-layer)
+    (fairy:add-child cursor-layer cursor-img)
+    (fairy:add-child root ui)
+    (fairy:add-child root objects)
 
     (make-state :main nil
                 :root root
-                :cursor-pos (gamekit:vec2 0 0)
                 :objects objects
-                :ui (fairy:new-layer 0 0)
-                :cursor-img cursor-img
+                :ui ui
+                :cursor cursor-layer
                 :puppets (make-hash-table :test 'equal))))
 
 (defun attribute-puppet (state key)
   (setf (state-main state) key))
 
 (defun add-puppet (state key x y)
-  (let ((puppet (fairy:new-rectangle x y 24 32 (gamekit:vec4 0 0 0 1))))
-    (fairy:layer-add-child (state-objects state) puppet)
+  (let ((puppet (make-instance 'fairy:rectangle
+                               :origin (gamekit:vec2 x y)
+                               :width 24
+                               :height 32)))
+    (fairy:add-child (state-objects state) puppet)
     (setf (gethash key (state-puppets state)) puppet))
   (if (string= (state-main state) key)
       (update-camera state)))
 
 (defun remove-puppet (state key)
-  (fairy:layer-delete-child (state-objects state) (gethash key (state-puppets state)))
+  (fairy:delete-child (state-objects state) (gethash key (state-puppets state)))
   (remhash key (state-puppets state)))
 
 (defun puppet-moves (state key x y)
-  (setf (fairy:rectangle-origin (gethash key (state-puppets state)))
+  (setf (fairy:origin (gethash key (state-puppets state)))
         (gamekit:vec2 x y)))
 
 (defun get-cursor-x (state)
-  (gamekit:x (state-cursor-pos state)))
+  (gamekit:x (fairy:origin (state-cursor state))))
 
 (defun get-cursor-y (state)
-  (gamekit:y (state-cursor-pos state)))
+  (gamekit:y (fairy:origin (state-cursor state))))
 
 (defun update-cursor (state dx dy)
   (let ((vx (min (max 0 (+ (get-cursor-x state) dx)) *viewport-width*))
@@ -55,10 +60,7 @@
     (force-cursor state vx vy)))
 
 (defun force-cursor (state x y)
-  (setf (fairy:rectangle-origin (state-cursor-img state))
-        (gamekit:vec2 (- x (/ *cursor-size* 2))
-                      (- y (/ *cursor-size* 2))))
-  (setf (state-cursor-pos state)
+  (setf (fairy:origin (state-cursor state))
         (gamekit:vec2 x y))
   (update-camera state))
 
@@ -66,16 +68,16 @@
   (let* ((cursor-x (get-cursor-x state))
          (cursor-y (get-cursor-y state))
          (puppet (gethash (state-main state) (state-puppets state)))
-         (puppet-x (gamekit:x (fairy:rectangle-origin puppet)))
-         (puppet-y (gamekit:y (fairy:rectangle-origin puppet)))
-         (puppet-width (fairy:rectangle-width puppet))
-         (puppet-height (fairy:rectangle-height puppet))
+         (puppet-x (gamekit:x (fairy:origin puppet)))
+         (puppet-y (gamekit:y (fairy:origin puppet)))
+         (puppet-width (fairy:width puppet))
+         (puppet-height (fairy:height puppet))
          (dx (- (/ *viewport-width* 2)
                 puppet-x
                 (/ puppet-width 2)))
          (dy (- (/ *viewport-height* 2)
                 puppet-y
                 (/ puppet-height 2))))
-    (setf (fairy:layer-origin (state-objects state))
+    (setf (fairy:origin (state-objects state))
           (gamekit:vec2 (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2))))
                         (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))
