@@ -2,7 +2,7 @@
 
 (defstruct entity x y width height)
 
-(defstruct state main root cursor-pos objects ui cursor puppets)
+(defstruct state main root cursor-pos cursor)
 
 (defun init-state ()
   (let ((root (make-instance 'fairy:layer))
@@ -15,17 +15,24 @@
                                    :height *cursor-size*
                                    :width *cursor-size*
                                    :color (gamekit:vec4 0.8 0.3 0.9 1))))
-    (fairy:add-child ui cursor-layer)
+    (fairy:add-child ui cursor-layer :with-key :cursor)
     (fairy:add-child cursor-layer cursor-img)
-    (fairy:add-child root ui)
-    (fairy:add-child root objects)
+    (fairy:add-child root ui :with-key :ui)
+    (fairy:add-child root objects :with-key :objects)
 
     (make-state :main nil
                 :root root
-                :objects objects
-                :ui ui
-                :cursor cursor-layer
-                :puppets (make-hash-table :test 'equal))))
+                :cursor cursor-layer)))
+
+(defun get-puppet (state key)
+  (fairy:get-child (fairy:get-child (state-root state) :objects)
+                   key :test #'equal))
+
+(defun (setf get-puppet) (val state key)
+  (setf (fairy:get-child (fairy:get-child (state-root state) :objects)
+                         key
+                         :test #'equal)
+        val))
 
 (defun attribute-puppet (state key)
   (setf (state-main state) key))
@@ -35,18 +42,18 @@
                                :origin (gamekit:vec2 x y)
                                :width 24
                                :height 32)))
-    (fairy:add-child (state-objects state) puppet)
-    (setf (gethash key (state-puppets state)) puppet))
+    (fairy:add-child (fairy:get-child (state-root state) :objects)
+                     puppet
+                     :with-key key))
   (if (string= (state-main state) key)
       (update-camera state)))
 
 (defun remove-puppet (state key)
-  (fairy:delete-child (state-objects state) (gethash key (state-puppets state)))
-  (remhash key (state-puppets state)))
+  (fairy:delete-child-with-key (fairy:get-child (state-root state) :objects)
+                               key :test #'equal))
 
 (defun puppet-moves (state key x y)
-  (setf (fairy:origin (gethash key (state-puppets state)))
-        (gamekit:vec2 x y)))
+  (setf (fairy:origin (get-puppet state key)) (gamekit:vec2 x y)))
 
 (defun get-cursor-x (state)
   (gamekit:x (fairy:origin (state-cursor state))))
@@ -67,7 +74,7 @@
 (defun update-camera (state)
   (let* ((cursor-x (get-cursor-x state))
          (cursor-y (get-cursor-y state))
-         (puppet (gethash (state-main state) (state-puppets state)))
+         (puppet (get-puppet state (state-main state)))
          (puppet-x (gamekit:x (fairy:origin puppet)))
          (puppet-y (gamekit:y (fairy:origin puppet)))
          (puppet-width (fairy:width puppet))
@@ -78,6 +85,6 @@
          (dy (- (/ *viewport-height* 2)
                 puppet-y
                 (/ puppet-height 2))))
-    (setf (fairy:origin (state-objects state))
+    (setf (fairy:origin (fairy:get-child (state-root state) :objects))
           (gamekit:vec2 (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2))))
                         (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))
