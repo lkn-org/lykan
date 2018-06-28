@@ -1,6 +1,7 @@
 (cl:in-package :lykanc)
 
-(defstruct entity x y width height)
+(defun resource-key (path)
+  (alexandria:make-keyword (file-namestring path)))
 
 (defstruct state main root cursor-pos cursor)
 
@@ -38,10 +39,11 @@
   (setf (state-main state) key))
 
 (defun add-puppet (state key x y)
-  (let ((puppet (make-instance 'fairy:rectangle
+  (let ((puppet (make-instance 'fairy/tiled:tile
+                               :current 19
                                :origin (gamekit:vec2 x y)
-                               :width 24
-                               :height 32)))
+                               :get-resource #'resource-key
+                               :path "../example/assets/tilesets/character.tsx")))
     (fairy:add-child (fairy:get-child (state-root state) :objects)
                      puppet
                      :with-key key))

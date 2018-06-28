@@ -6,10 +6,13 @@
   :serial t
   :depends-on (trivial-gamekit
                fairy
+               fairy/tiled
+               alexandria
                websocket-driver-client
                jsown)
   :components ((:file "project")
                (:file "parameter")
+               (:file "assets")
                (:file "state")
                (:file "message")
                (:file "lykanc")))
