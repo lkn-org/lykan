@@ -44,6 +44,7 @@
                                :origin (gamekit:vec2 x y)
                                :get-resource #'resource-key
                                :path "../example/assets/tilesets/character.tsx")))
+    (fairy/tiled:start-frame-animation puppet `(18 19 20) 700)
     (fairy:add-child (fairy:get-child (state-root state) :objects)
                      puppet
                      :with-key key))

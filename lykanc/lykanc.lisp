@@ -2,9 +2,11 @@
 
 (defvar *state* (init-state))
 
-(gamekit:defgame app () ()
-                 (:viewport-width (* *scale* *viewport-width*))
-                 (:viewport-height (* *scale* *viewport-height*)))
+(gamekit:defgame app ()
+  ((last-frame :initform (get-internal-real-time)
+               :accessor last-frame))
+  (:viewport-width (* *scale* *viewport-width*))
+  (:viewport-height (* *scale* *viewport-height*)))
 
 ; the websocket
 (defvar *client* (wsd:make-client "ws://localhost:4000"))
@@ -51,6 +53,13 @@
 
 (handler-case (wsd:start-connection *client*)
   (usocket:connection-refused-error nil (print "was not able to connect")))
+
+(defmethod gamekit:act ((app app))
+  (let* ((new-time (get-internal-real-time))
+         (dt (/ (* (- new-time (last-frame app)) 1000)
+                 internal-time-units-per-second)))
+    (fairy:update (state-root *state*) dt)
+    (setf (last-frame app) new-time)))
 
 (defmethod gamekit:draw ((app app))
   (gamekit:with-pushed-canvas ()
