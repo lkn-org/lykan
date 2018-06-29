@@ -1,6 +1,6 @@
 (cl:in-package :lykanc)
 
-(gamekit:defgame app ()
+(gamekit:defgame client ()
   ((last-frame :initform (get-internal-real-time)
                :accessor last-frame)
    (socket :initform (wsd:make-client *server-url*)
@@ -14,7 +14,7 @@
   (:viewport-width (* *scale* *viewport-width*))
   (:viewport-height (* *scale* *viewport-height*)))
 
-(defmethod gamekit:post-initialize ((app app))
+(defmethod gamekit:post-initialize ((app client))
   (wsd:start-connection (socket app))
 
   (wsd:on :message (socket app)
@@ -43,20 +43,20 @@
        (update-cursor (state app) (- x (gamekit:x (cursor-vec app))) (- y (gamekit:y (cursor-vec app)))))
      (setf (cursor-vec app) (gamekit:vec2 x y)))))
 
-(defmethod gamekit:initialize-host ((app app))
+(defmethod gamekit:initialize-host ((app client))
   (ge.host:lock-cursor))
 
-(defmethod gamekit:act ((app app))
+(defmethod gamekit:act ((app client))
   (let* ((new-time (get-internal-real-time))
          (dt (/ (* (- new-time (last-frame app)) 1000)
                  internal-time-units-per-second)))
     (fairy:update (state-root (state app)) dt)
     (setf (last-frame app) new-time)))
 
-(defmethod gamekit:draw ((app app))
+(defmethod gamekit:draw ((app client))
   (gamekit:with-pushed-canvas ()
     (gamekit:scale-canvas *scale* *scale*)
     (fairy:draw (state-root (state app)))))
 
 (defun run ()
-  (gamekit:start 'app))
+  (gamekit:start 'client))

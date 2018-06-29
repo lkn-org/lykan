@@ -5,4 +5,4 @@
 (cl:in-package :lykanc/bundle)
 
 (defun deliver ()
-  (gamekit.distribution:deliver :lykanc 'lykanc:app))
+  (gamekit.distribution:deliver :lykanc 'lykanc:client))

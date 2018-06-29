@@ -1,3 +1,3 @@
 (defpackage :lykanc
   (:use :cl)
-  (:export run app))
+  (:export run client))
