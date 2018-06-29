@@ -13,7 +13,7 @@
   :components ((:file "project")
                (:file "parameter")
                (:file "assets")
-               (:file "state")
+               (:file "client")
                (:file "message")
                (:file "lykanc")))
 
