@@ -1,70 +1,62 @@
 (cl:in-package :lykanc)
 
-(defvar *state* (init-state))
-
 (gamekit:defgame app ()
   ((last-frame :initform (get-internal-real-time)
-               :accessor last-frame))
+               :accessor last-frame)
+   (socket :initform (wsd:make-client *server-url*)
+           :reader socket)
+   (cursor-locked :initform t
+                  :accessor cursor-locked?)
+   (cursor-vec :initform (gamekit:vec2 0 0)
+               :accessor cursor-vec)
+   (state :initform (init-state)
+          :accessor state))
   (:viewport-width (* *scale* *viewport-width*))
   (:viewport-height (* *scale* *viewport-height*)))
 
-; the websocket
-(defvar *client* (wsd:make-client "ws://localhost:4000"))
-(wsd:on :message *client*
-        (lambda (message)
-          (handle-message message *state*)))
-
-(wsd:on :error *client*
-        (lambda (error)
-          (format t "Got an error: ~S~%" error)))
-
-(defvar *locked* t)
-(defvar *x* 0)
-(defvar *y* 0)
-
-(defun init-cursor-values (state)
-  (let* ((init-x (/ *viewport-width* 2))
-         (init-y (/ *viewport-height* 2)))
-    (force-cursor *state* init-x init-y)))
-
 (defmethod gamekit:post-initialize ((app app))
+  (wsd:start-connection (socket app))
+
+  (wsd:on :message (socket app)
+          (lambda (message)
+            (handle-message message (state app))))
+
+  (wsd:on :error (socket app)
+          (lambda (error)
+            (format t "Got an error: ~S~%" error)))
+
   (gamekit:bind-button :space :pressed `gamekit:stop)
 
   (gamekit:bind-button
    :tab :pressed
    (lambda ()
-     (setf *locked* (not *locked*))
-     (if *locked*
+     (setf (cursor-locked? app) (not (cursor-locked? app)))
+     (if (cursor-locked? app)
          (progn
-           (force-cursor *state*
-                         (/ *viewport-width* 2) (/ *viewport-height* 2))
+           (force-cursor (state app) (/ *viewport-width* 2) (/ *viewport-height* 2))
            (ge.ng:run (ge.host:for-host () (ge.host:lock-cursor))))
          (ge.ng:run (ge.host:for-host () (ge.host:unlock-cursor))))))
 
   (gamekit:bind-cursor
    (lambda (x y)
-     (if *locked*
-         (update-cursor *state* (- x *x*) (- y *y*)))
-     (setf *x* x)
-     (setf *y* y))))
+     (when (cursor-locked? app)
+       (update-cursor (state app) (- x (gamekit:x (cursor-vec app))) (- y (gamekit:y (cursor-vec app)))))
+     (setf (cursor-vec app) (gamekit:vec2 x y)))))
 
 (defmethod gamekit:initialize-host ((app app))
   (ge.host:lock-cursor))
-
-(handler-case (wsd:start-connection *client*)
-  (usocket:connection-refused-error nil (print "was not able to connect")))
 
 (defmethod gamekit:act ((app app))
   (let* ((new-time (get-internal-real-time))
          (dt (/ (* (- new-time (last-frame app)) 1000)
                  internal-time-units-per-second)))
-    (fairy:update (state-root *state*) dt)
+    (fairy:update (state-root (state app)) dt)
     (setf (last-frame app) new-time)))
 
 (defmethod gamekit:draw ((app app))
   (gamekit:with-pushed-canvas ()
     (gamekit:scale-canvas *scale* *scale*)
-    (fairy:draw (state-root *state*))))
+    (fairy:draw (state-root (state app)))))
 
 (defun run ()
   (gamekit:start 'app))
