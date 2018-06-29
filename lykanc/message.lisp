@@ -25,9 +25,17 @@
     (puppet-moves state key (jsown:val position "x") (jsown:val position "y"))))
 
 
-;; PUPPET_LEAVES
+;; PUPPET LEAVES
 (defun handle-puppet-leaves (message state)
   (remove-puppet state (jsown:val message "puppet_key")))
+
+;; PUPPET STARTS
+(defun handle-puppet-starts (message state)
+  (puppet-starts-moving state (jsown:val message "puppet_key")))
+
+;; PUPPET STOPS
+(defun handle-puppet-stops (message state)
+  (puppet-stops-moving state (jsown:val message "puppet_key")))
 
 ;; Unknown message
 (defun unknown-message (opcode cmd state)
@@ -43,6 +51,8 @@
       ((string= opcode "ATTRIBUTE_PUPPET") (handle-attribute-puppet cmd state))
       ((string= opcode "INSTANCE_DIGEST") (handle-instance-digest cmd state))
       ((string= opcode "PUPPET_ENTERS") (handle-puppet-enters cmd state))
+      ((string= opcode "PUPPET_STARTS") (handle-puppet-starts cmd state))
       ((string= opcode "PUPPET_MOVES") (handle-puppet-moves cmd state))
+      ((string= opcode "PUPPET_STOPS") (handle-puppet-stops cmd state))
       ((string= opcode "PUPPET_LEAVES") (handle-puppet-leaves cmd state))
       (t (unknown-message opcode cmd state)))))

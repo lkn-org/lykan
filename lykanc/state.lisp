@@ -44,12 +44,19 @@
                                :origin (gamekit:vec2 x y)
                                :get-resource #'resource-key
                                :path "../example/assets/tilesets/character.tsx")))
-    (fairy/tiled:start-frame-animation puppet `(18 19 20) 700)
     (fairy:add-child (fairy:get-child (state-root state) :objects)
                      puppet
                      :with-key key))
   (if (string= (state-main state) key)
       (update-camera state)))
+
+(defun puppet-starts-moving (state key)
+  (fairy/tiled:start-frame-animation (get-puppet state key)
+                                     `(18 19 20)
+                                     700))
+
+(defun puppet-stops-moving (state key)
+  (fairy/tiled:stop-frame-animation (get-puppet state key) 19))
 
 (defun remove-puppet (state key)
   (fairy:delete-child-with-key (fairy:get-child (state-root state) :objects)
