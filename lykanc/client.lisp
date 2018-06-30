@@ -111,8 +111,8 @@
                   puppet-y
                   (/ puppet-height 2))))
       (setf (fairy:origin (fairy:get-child app :game-scene))
-            (gamekit:vec2 (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2))))
-                          (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2)))))))))
+            (gamekit:vec2 (round (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2)))))
+                          (round (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))))
 
 (defmethod gamekit:post-initialize ((app client))
   (init-renderer app)
