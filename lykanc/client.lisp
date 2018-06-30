@@ -3,6 +3,8 @@
 (gamekit:defgame client (fairy:layer)
   ((last-frame :initform (get-internal-real-time)
                :accessor last-frame)
+   (keyboard :initform (make-keyboard)
+             :accessor keyboard)
    (socket :initform (wsd:make-client *server-url*)
            :reader socket)
    (cursor-locked :initform t
@@ -77,7 +79,9 @@
                                key :test #'equal))
 
 (defmethod puppet-moves ((app client) key x y)
-  (setf (fairy:origin (get-puppet app key)) (gamekit:vec2 x y)))
+  (setf (fairy:origin (get-puppet app key)) (gamekit:vec2 x y))
+  (when (string= key (main-puppet app))
+    (update-camera app)))
 
 (defmethod get-cursor-x ((app client))
   (gamekit:x (fairy:origin (fairy:get-child (fairy:get-child app :ui) :cursor))))
@@ -111,8 +115,34 @@
                   puppet-y
                   (/ puppet-height 2))))
       (setf (fairy:origin (fairy:get-child app :game-scene))
-            (gamekit:vec2 (round (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2)))))
-                          (round (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))))
+            (gamekit:vec2 (round (- dx (* 0.05 (- cursor-x (/ *viewport-width* 2)))))
+                          (round (- dy (* 0.05 (- cursor-y (/ *viewport-height* 2))))))))))
+
+(defmethod set-direction ((app client) dir)
+  (let ((already-moving? (current-direction (keyboard app))))
+    (add-direction (keyboard app) dir)
+    (wsd:send-text (socket app) (cond
+                                  ((eq dir :up) "UP")
+                                  ((eq dir :down) "DOWN")
+                                  ((eq dir :right) "RIGHT")
+                                  ((eq dir :LEFT) "LEFT")))
+    (when (not already-moving?)
+      (wsd:send-text (socket app) "MOVE"))))
+
+(defmethod unset-direction ((app client) dir)
+  (remove-direction (keyboard app) dir)
+  (let ((dir (current-direction (keyboard app))))
+    (if dir
+        (wsd:send-text (socket app) (cond
+                                      ((eq dir :up) "UP")
+                                      ((eq dir :down) "DOWN")
+                                      ((eq dir :right) "RIGHT")
+                                      ((eq dir :LEFT) "LEFT")))
+        (wsd:send-text (socket app) "STOP"))))
+
+(defmethod bind-direction ((app client) key dir)
+  (gamekit:bind-button key :pressed (lambda () (set-direction app dir)))
+  (gamekit:bind-button key :released (lambda () (unset-direction app dir))))
 
 (defmethod gamekit:post-initialize ((app client))
   (init-renderer app)
@@ -138,6 +168,11 @@
            (force-cursor app (/ *viewport-width* 2) (/ *viewport-height* 2))
            (ge.ng:run (ge.host:for-host () (ge.host:lock-cursor))))
          (ge.ng:run (ge.host:for-host () (ge.host:unlock-cursor))))))
+
+  (bind-direction app :w :up)
+  (bind-direction app :a :left)
+  (bind-direction app :s :down)
+  (bind-direction app :d :right)
 
   (gamekit:bind-cursor
    (lambda (x y)
