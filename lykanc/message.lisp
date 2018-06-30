@@ -6,7 +6,9 @@
 
 ;; INSTANCE_DIGEST
 (defun handle-instance-digest (message app)
-  (let ((puppets (jsown:val message "puppets")))
+  (let ((map-key (jsown:val (jsown:val message "map") "map_key"))
+        (puppets (jsown:val message "puppets")))
+    (init-map app map-key)
     (jsown:do-json-keys (key puppet-desc) puppets
                         (add-puppet app key
                                     (jsown:val puppet-desc "x")

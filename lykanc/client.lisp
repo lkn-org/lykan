@@ -9,6 +9,8 @@
                   :accessor cursor-locked?)
    (real-cursor-vec :initform (gamekit:vec2 0 0)
                     :accessor real-cursor-vec)
+   (map-ready :initform nil
+              :accessor map-ready?)
    (main-puppet :initform nil
                 :accessor main-puppet))
   (:viewport-width (* *scale* *viewport-width*))
@@ -24,18 +26,27 @@
                                    :height *cursor-size*
                                    :width *cursor-size*
                                    :color (gamekit:vec4 0.8 0.3 0.9 1))))
+    (fairy:add-child app (make-instance 'fairy:rectangle
+                                        :width (* *viewport-width* *scale*)
+                                        :height (* *viewport-height* *scale*)))
     (fairy:add-child ui cursor-layer :with-key :cursor)
     (fairy:add-child cursor-layer cursor-img)
-    (fairy:add-child app ui :with-key :ui)
-    (fairy:add-child app objects :with-key :objects)))
+    (fairy:add-child app objects :with-key :game-scene)
+    (fairy:add-child app ui :with-key :ui)))
+
+(defmethod init-map ((app client) map-key)
+  (let* ((tmx-file (concatenate 'string *maps_dir* map-key ".tmx"))
+         (map-layer (make-instance 'fairy/tiled:tile-map :path tmx-file)))
+    (setf (fairy:get-child app :game-scene) map-layer)))
+
+(defmethod get-objects-layer ((app client))
+  (fairy/tiled:get-map-layer (fairy:get-child app :game-scene) "objects"))
 
 (defmethod get-puppet ((app client) key)
-  (fairy:get-child (fairy:get-child app :objects) key :test #'equal))
+  (fairy:get-child (get-objects-layer app) key :test #'equal))
 
 (defun (setf get-puppet) (val app key)
-  (setf (fairy:get-child (fairy:get-child app :objects)
-                         key
-                         :test #'equal)
+  (setf (fairy:get-child (get-objects-layer app) key :test #'equal)
         val))
 
 (defmethod attribute-puppet ((app client) key)
@@ -46,11 +57,12 @@
                                :current 19
                                :origin (gamekit:vec2 x y)
                                :path "../example/assets/tilesets/character.tsx")))
-    (fairy:add-child (fairy:get-child app :objects)
+    (fairy:add-child (get-objects-layer app)
                      puppet
                      :with-key key))
-  (if (string= (main-puppet app) key)
-      (update-camera app)))
+  (when (string= (main-puppet app) key)
+    (setf (map-ready? app) t)
+    (update-camera app)))
 
 (defmethod puppet-starts-moving ((app client) key)
   (fairy/tiled:start-frame-animation (get-puppet app key)
@@ -61,7 +73,7 @@
   (fairy/tiled:stop-frame-animation (get-puppet app key) 19))
 
 (defmethod remove-puppet ((app client) key)
-  (fairy:delete-child-with-key (fairy:get-child app :objects)
+  (fairy:delete-child-with-key (get-objects-layer app)
                                key :test #'equal))
 
 (defmethod puppet-moves ((app client) key x y)
@@ -84,23 +96,23 @@
   (update-camera app))
 
 (defmethod update-camera ((app client))
-  (let ((puppet (get-puppet app (main-puppet app))))
-    (when puppet
-      (let* ((cursor-x (get-cursor-x app))
-             (cursor-y (get-cursor-y app))
-             (puppet-x (gamekit:x (fairy:origin puppet)))
-             (puppet-y (gamekit:y (fairy:origin puppet)))
-             (puppet-width (fairy:width puppet))
-             (puppet-height (fairy:height puppet))
-             (dx (- (/ *viewport-width* 2)
-                    puppet-x
-                    (/ puppet-width 2)))
-             (dy (- (/ *viewport-height* 2)
-                    puppet-y
-                    (/ puppet-height 2))))
-        (setf (fairy:origin (fairy:get-child app :objects))
-              (gamekit:vec2 (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2))))
-                            (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))))
+  (when (map-ready? app)
+    (let* ((puppet (get-puppet app (main-puppet app)))
+           (cursor-x (get-cursor-x app))
+           (cursor-y (get-cursor-y app))
+           (puppet-x (gamekit:x (fairy:origin puppet)))
+           (puppet-y (gamekit:y (fairy:origin puppet)))
+           (puppet-width (fairy:width puppet))
+           (puppet-height (fairy:height puppet))
+           (dx (- (/ *viewport-width* 2)
+                  puppet-x
+                  (/ puppet-width 2)))
+           (dy (- (/ *viewport-height* 2)
+                  puppet-y
+                  (/ puppet-height 2))))
+      (setf (fairy:origin (fairy:get-child app :game-scene))
+            (gamekit:vec2 (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2))))
+                          (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2)))))))))
 
 (defmethod gamekit:post-initialize ((app client))
   (init-renderer app)
