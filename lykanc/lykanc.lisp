@@ -1,4 +1,4 @@
 (cl:in-package :lykanc)
 
 (defun run ()
-  (gamekit:start 'client))
+  (gamekit:start 'client :samples 4))
