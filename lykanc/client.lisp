@@ -53,10 +53,8 @@
   (setf (main-puppet app) key))
 
 (defmethod add-puppet ((app client) key x y)
-  (let ((puppet (make-instance 'fairy/tiled:tile
-                               :current 19
-                               :origin (gamekit:vec2 x y)
-                               :path "../example/assets/tilesets/character.tsx")))
+  (let ((puppet (new-puppet "../example/assets/tilesets/character.tsx"
+                            x y)))
     (fairy:add-child (get-objects-layer app)
                      puppet
                      :with-key key))
@@ -65,12 +63,13 @@
     (update-camera app)))
 
 (defmethod puppet-starts-moving ((app client) key)
-  (fairy/tiled:start-frame-animation (get-puppet app key)
-                                     `(18 19 20)
-                                     700))
+  (starts-moving (get-puppet app key)))
 
 (defmethod puppet-stops-moving ((app client) key)
-  (fairy/tiled:stop-frame-animation (get-puppet app key) 19))
+  (stops-moving (get-puppet app key)))
+
+(defmethod puppet-changes-direction ((app client) key dir)
+  (changes-direction (get-puppet app key) dir))
 
 (defmethod remove-puppet ((app client) key)
   (fairy:delete-child-with-key (get-objects-layer app)
@@ -113,8 +112,8 @@
                   puppet-y
                   (/ puppet-height 2))))
       (setf (fairy:origin (fairy:get-child app :game-scene))
-            (gamekit:vec2 (round (- dx (* 0.05 (- cursor-x (/ *viewport-width* 2)))))
-                          (round (- dy (* 0.05 (- cursor-y (/ *viewport-height* 2))))))))))
+            (gamekit:vec2 (round (- dx (* 0.1 (- cursor-x (/ *viewport-width* 2)))))
+                          (round (- dy (* 0.1 (- cursor-y (/ *viewport-height* 2))))))))))
 
 (defmethod set-direction ((app client) dir)
   (let ((already-moving? (current-direction (keyboard app))))

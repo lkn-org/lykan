@@ -13,6 +13,7 @@
   :components ((:file "project")
                (:file "parameter")
                (:file "assets")
+               (:file "puppet")
                (:file "keyboard")
                (:file "client")
                (:file "message")

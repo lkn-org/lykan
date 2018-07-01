@@ -39,6 +39,18 @@
 (defun handle-puppet-stops (message app)
   (puppet-stops-moving app (jsown:val message "puppet_key")))
 
+;; PUPPET DIRECTION
+(defun handle-puppet-direction (message app)
+  (let* ((str-dir (jsown:val message "direction"))
+         (dir (cond
+                ((string= str-dir "down") :down)
+                ((string= str-dir "up") :up)
+                ((string= str-dir "right") :right)
+                ((string= str-dir "left") :left))))
+    (puppet-changes-direction app
+                              (jsown:val message "puppet_key")
+                              dir)))
+
 ;; Unknown message
 (defun unknown-message (opcode cmd app)
   (print opcode)
@@ -57,4 +69,5 @@
       ((string= opcode "PUPPET_MOVES") (handle-puppet-moves cmd app))
       ((string= opcode "PUPPET_STOPS") (handle-puppet-stops cmd app))
       ((string= opcode "PUPPET_LEAVES") (handle-puppet-leaves cmd app))
+      ((string= opcode "PUPPET_DIRECTION") (handle-puppet-direction cmd app))
       (t (unknown-message opcode cmd app)))))
