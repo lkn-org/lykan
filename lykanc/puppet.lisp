@@ -3,8 +3,10 @@
 (defclass puppet (fairy:layer)
   ((direction :initform :down
               :accessor direction)
-   (action :initform :waiting
-           :accessor action)))
+   (moving :initform nil
+           :accessor moving?)
+   (attacking :initform nil
+              :accessor attacking?)))
 
 (defun new-puppet (path-tileset x y)
   (let ((layer (make-instance 'puppet
@@ -22,6 +24,13 @@
     ((eq dir :right) `(10 11 9))
     ((eq dir :left) `(28 29 27))))
 
+(defun attacking-frames (dir)
+  (cond
+    ((eq dir :down) `(22 23 21))
+    ((eq dir :up) `(4 5 3))
+    ((eq dir :right) `(13 14 12))
+    ((eq dir :left) `(31 32 30))))
+
 (defun waiting-frame (dir)
   (cond
     ((eq dir :down) 19)
@@ -29,16 +38,35 @@
     ((eq dir :right) 10)
     ((eq dir :left) 28)))
 
+(defmethod update-animation ((p puppet))
+  (cond
+    ((attacking? p)
+     (fairy/tiled:start-frame-animation (fairy:get-child p :character)
+                                        (attacking-frames (direction p))
+                                        600))
+    ((moving? p)
+     (fairy/tiled:start-frame-animation (fairy:get-child p :character)
+                                        (moving-frames (direction p))
+                                        600))
+    (t
+     (fairy/tiled:stop-frame-animation (fairy:get-child p :character)
+                                         (waiting-frame (direction p))))))
+
 (defmethod starts-moving ((p puppet))
-  (setf (action p) :moving)
-  (fairy/tiled:start-frame-animation (fairy:get-child p :character)
-                                     (moving-frames (direction p))
-                                     600))
+  (setf (moving? p) t)
+  (update-animation p))
 
 (defmethod stops-moving ((p puppet))
-  (setf (action p) :waiting)
-  (fairy/tiled:stop-frame-animation (fairy:get-child p :character)
-                                    (waiting-frame (direction p))))
+  (setf (moving? p) nil)
+  (update-animation p))
+
+(defmethod starts-attacking ((p puppet))
+  (setf (attacking? p) t)
+  (update-animation p))
+
+(defmethod stops-attacking ((p puppet))
+  (setf (attacking? p) nil)
+  (update-animation p))
 
 (defmethod fairy:width ((p puppet))
   (fairy:width (fairy:get-child p :character)))
@@ -48,6 +76,4 @@
 
 (defmethod changes-direction ((p puppet) dir)
   (setf (direction p) dir)
-  (cond
-    ((eq (action p) :moving)  (starts-moving p))
-    ((eq (action p) :waiting) (stops-moving p))))
+  (update-animation p))

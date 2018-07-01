@@ -80,6 +80,12 @@
   (when (string= key (main-puppet app))
     (update-camera app)))
 
+(defmethod puppet-attacks ((app client) puppet-key)
+  (starts-attacking (get-puppet app puppet-key)))
+
+(defmethod puppet-stop-attack ((app client) puppet-key)
+  (stops-attacking (get-puppet app puppet-key)))
+
 (defmethod get-cursor-x ((app client))
   (gamekit:x (fairy:origin (fairy:get-child (fairy:get-child app :ui) :cursor))))
 
@@ -153,6 +159,16 @@
   (wsd:on :error (socket app)
           (lambda (error)
             (format t "Got an error: ~S~%" error)))
+
+  (gamekit:bind-button
+   :mouse-left :pressed
+   (lambda ()
+     (wsd:send-text (socket app) "ATTACK")))
+
+  (gamekit:bind-button
+   :mouse-left :released
+   (lambda ()
+     (wsd:send-text (socket app) "STOP_ATTACK")))
 
   (gamekit:bind-button :space :pressed `gamekit:stop)
 
