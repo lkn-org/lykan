@@ -6,3 +6,4 @@
 (gamekit:register-resource-package :keyword "../example/assets/tilesets/")
 (define-tileset "character.png")
 (define-tileset "map.png")
+(gamekit:define-image :cursor "cursor.png")

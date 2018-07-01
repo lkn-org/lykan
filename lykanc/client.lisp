@@ -22,12 +22,10 @@
   (let ((ui (make-instance 'fairy:layer))
         (objects (make-instance 'fairy:layer))
         (cursor-layer (make-instance 'fairy:layer))
-        (cursor-img (make-instance 'fairy:rectangle
+        (cursor-img (make-instance 'fairy:image
                                    :origin (gamekit:vec2 (- (/ *cursor-size* 2))
                                                          (- (/ *cursor-size* 2)))
-                                   :height *cursor-size*
-                                   :width *cursor-size*
-                                   :color (gamekit:vec4 0.8 0.3 0.9 1))))
+                                   :key :cursor)))
     (fairy:add-child app (make-instance 'fairy:rectangle
                                         :width (* *viewport-width* *scale*)
                                         :height (* *viewport-height* *scale*)))
