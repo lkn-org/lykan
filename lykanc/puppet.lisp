@@ -87,5 +87,17 @@
   (fairy:height (fairy:get-child p :character)))
 
 (defmethod changes-direction ((p puppet) dir)
-  (setf (direction p) dir)
-  (update-animation p))
+  (when (not (eq (direction p) dir))
+    (setf (direction p) dir)
+    (update-animation p)))
+
+(defun get-dir (angle)
+  (cond
+    ((<= angle (- (* 3 (/ pi 4)))) :down)
+    ((<= angle (- (* 1 (/ pi 4)))) :left)
+    ((<= angle (* 1 (/ pi 4))) :up)
+    ((<= angle (* 3 (/ pi 4))) :right)
+    (t :down)))
+
+(defmethod look-at ((p puppet) angle)
+  (changes-direction p (get-dir angle)))

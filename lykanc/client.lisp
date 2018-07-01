@@ -100,10 +100,21 @@
         (vy (min (max 0 (+ (get-cursor-y app) dy)) *viewport-height*)))
     (force-cursor app vx vy)))
 
+(defun get-angle (x y)
+  (atan x y))
+
 (defmethod force-cursor ((app client) x y)
-  (fairy:goto (fairy:get-child (fairy:get-child app :ui) :cursor)
-              (gamekit:vec2 x y)
-              100))
+  (let* ((cursor (gamekit:vec2 x y))
+         (center (gamekit:vec2 (/ *viewport-width* 2)
+                               (/ *viewport-height* 2)))
+         (dir-vec (gamekit:subt cursor center))
+         (alpha (get-angle (gamekit:x dir-vec)
+                           (gamekit:y dir-vec))))
+    (when (map-ready? app)
+      (look-at (get-puppet app (main-puppet app)) alpha))
+    (fairy:goto (fairy:get-child (fairy:get-child app :ui) :cursor)
+                cursor
+                100)))
 
 (defmethod update-camera ((app client))
   (when (map-ready? app)
