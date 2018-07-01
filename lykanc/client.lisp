@@ -37,7 +37,10 @@
 (defmethod init-map ((app client) map-key)
   (let* ((tmx-file (concatenate 'string *maps_dir* map-key ".tmx"))
          (map-layer (make-instance 'fairy/tiled:tile-map :path tmx-file)))
-    (setf (fairy:get-child app :game-scene) map-layer)))
+    (setf (fairy:get-child app :game-scene) map-layer))
+  (setf (fairy:sort-with (get-objects-layer app))
+        (lambda (p1 p2)
+          (> (gamekit:y (fairy:origin p1)) (gamekit:y (fairy:origin p2))))))
 
 (defmethod get-objects-layer ((app client))
   (fairy/tiled:get-map-layer (fairy:get-child app :game-scene) "objects"))
