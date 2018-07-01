@@ -62,8 +62,7 @@
                      puppet
                      :with-key key))
   (when (string= (main-puppet app) key)
-    (setf (map-ready? app) t)
-    (update-camera app)))
+    (setf (map-ready? app) t)))
 
 (defmethod puppet-starts-moving ((app client) key)
   (starts-moving (get-puppet app key)))
@@ -82,9 +81,7 @@
                                key :test #'equal))
 
 (defmethod puppet-moves ((app client) key x y)
-  (setf (fairy:origin (get-puppet app key)) (gamekit:vec2 x y))
-  (when (string= key (main-puppet app))
-    (update-camera app)))
+  (setf (fairy:origin (get-puppet app key)) (gamekit:vec2 x y)))
 
 (defmethod puppet-attacks ((app client) puppet-key)
   (starts-attacking (get-puppet app puppet-key)))
@@ -104,9 +101,9 @@
     (force-cursor app vx vy)))
 
 (defmethod force-cursor ((app client) x y)
-  (setf (fairy:origin (fairy:get-child (fairy:get-child app :ui) :cursor))
-        (gamekit:vec2 x y))
-  (update-camera app))
+  (fairy:goto (fairy:get-child (fairy:get-child app :ui) :cursor)
+              (gamekit:vec2 x y)
+              100))
 
 (defmethod update-camera ((app client))
   (when (map-ready? app)
@@ -124,8 +121,8 @@
                   puppet-y
                   (/ puppet-height 2))))
       (setf (fairy:origin (fairy:get-child app :game-scene))
-            (gamekit:vec2 (round (- dx (* 0.1 (- cursor-x (/ *viewport-width* 2)))))
-                          (round (- dy (* 0.1 (- cursor-y (/ *viewport-height* 2))))))))))
+            (gamekit:vec2 (round (- dx (* 0.2 (- cursor-x (/ *viewport-width* 2)))))
+                          (round (- dy (* 0.2 (- cursor-y (/ *viewport-height* 2))))))))))
 
 (defmethod set-direction ((app client) dir)
   (let ((already-moving? (current-direction (keyboard app))))
@@ -212,6 +209,7 @@
     (setf (last-frame app) new-time)))
 
 (defmethod gamekit:draw ((app client))
+  (update-camera app)
   (gamekit:with-pushed-canvas ()
     (gamekit:scale-canvas *scale* *scale*)
     (fairy:draw app)))
