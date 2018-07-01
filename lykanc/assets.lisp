@@ -7,3 +7,5 @@
 (define-tileset "character.png")
 (define-tileset "map.png")
 (gamekit:define-image :cursor "cursor.png")
+
+(gamekit:define-font :lykanc-font "NotoSansMono-Regular.ttf")

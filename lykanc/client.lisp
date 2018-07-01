@@ -71,6 +71,9 @@
 (defmethod puppet-changes-direction ((app client) key dir)
   (changes-direction (get-puppet app key) dir))
 
+(defmethod puppet-hurted ((app client) key)
+  (hurted (get-puppet app key)))
+
 (defmethod remove-puppet ((app client) key)
   (fairy:delete-child-with-key (get-objects-layer app)
                                key :test #'equal))

@@ -56,6 +56,18 @@
   (setf (moving? p) t)
   (update-animation p))
 
+(defmethod hurted ((p puppet))
+  (let* ((h (fairy:height p))
+         (w (fairy:width p))
+         (damages (make-instance 'fairy:text
+                                 :value "Hit!"
+                                 :font (gamekit:make-font :lykanc-font 10)
+                                 :origin (gamekit:vec2 3 (- h 5)))))
+    (fairy:add-child p damages)
+    (fairy:goto damages (gamekit:vec2 3 (+ h 15)) 700
+                :then (lambda ()
+                        (fairy:delete-child p damages)))))
+
 (defmethod stops-moving ((p puppet))
   (setf (moving? p) nil)
   (update-animation p))

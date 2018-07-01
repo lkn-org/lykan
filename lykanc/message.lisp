@@ -51,11 +51,17 @@
                               (jsown:val message "puppet_key")
                               dir)))
 
+;; PUPPET STARTS ATTACKING
 (defun handle-puppet-attacks (message app)
   (puppet-attacks app (jsown:val message "puppet_key")))
 
+;; PUPPET STOPS ATTACKING
 (defun handle-puppet-stops-attack (message app)
   (puppet-stop-attack app (jsown:val message "puppet_key")))
+
+;; PUPPET HURTED
+(defun handle-puppet-hurted (message app)
+  (puppet-hurted app (jsown:val message "puppet_key")))
 
 ;; Unknown message
 (defun unknown-message (opcode cmd app)
@@ -78,4 +84,5 @@
       ((string= opcode "PUPPET_DIRECTION") (handle-puppet-direction cmd app))
       ((string= opcode "PUPPET_STARTS_ATTACKING") (handle-puppet-attacks cmd app))
       ((string= opcode "PUPPET_STOPS_ATTACKING") (handle-puppet-stops-attack cmd app))
+      ((string= opcode "PUPPET_HURTED") (handle-puppet-hurted cmd app))
       (t (unknown-message opcode cmd app)))))
