@@ -114,7 +114,7 @@
       (look-at (get-puppet app (main-puppet app)) alpha))
     (fairy:goto (fairy:get-child (fairy:get-child app :ui) :cursor)
                 cursor
-                100)))
+                200)))
 
 (defmethod update-camera ((app client))
   (when (map-ready? app)
@@ -215,12 +215,12 @@
 (defmethod gamekit:act ((app client))
   (let* ((new-time (get-internal-real-time))
          (dt (/ (* (- new-time (last-frame app)) 1000)
-                 internal-time-units-per-second)))
+                internal-time-units-per-second)))
     (fairy:update app dt)
-    (setf (last-frame app) new-time)))
+    (setf (last-frame app) new-time))
+  (update-camera app))
 
 (defmethod gamekit:draw ((app client))
-  (update-camera app)
   (gamekit:with-pushed-canvas ()
     (gamekit:scale-canvas *scale* *scale*)
     (fairy:draw app)))
