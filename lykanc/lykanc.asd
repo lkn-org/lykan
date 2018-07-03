@@ -15,6 +15,7 @@
                (:file "assets")
                (:file "puppet")
                (:file "keyboard")
+               (:file "command")
                (:file "client")
                (:file "message")
                (:file "lykanc")))

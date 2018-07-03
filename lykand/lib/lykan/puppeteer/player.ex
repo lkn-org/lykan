@@ -2,8 +2,8 @@ use Lkn.Prelude
 
 import Lykan.Message, only: [defmessage: 2]
 
+alias Lykan.Commands, as: C
 alias Lykan.System.Physics.PuppetHitsTeleport
-alias Lkn.Physics.Geometry.Vector
 
 defmodule Lykan.Puppeteer.Player do
   defmessage AttributePuppet do
@@ -77,7 +77,7 @@ defmodule Lykan.Puppeteer.Player do
 
     cast inject(cmd :: any) do
       case instance_key do
-        Option.some(instance_key) -> consume_cmd(cmd, state, instance_key)
+        Option.some(instance_key) -> consume_cmd(Lykan.Command.decode(cmd), state, instance_key)
         Option.nothing() -> cast_return()
       end
     end
@@ -91,6 +91,16 @@ defmodule Lykan.Puppeteer.Player do
 
   def start_link(puppeteer_key, socket, main) do
     Lkn.Core.Puppeteer.start_link(__MODULE__, puppeteer_key, socket: socket, main: main)
+  end
+
+  defp consume_cmd(cmd = %C.SetDirection{}, state, instance_key) do
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, cmd.angle)
+    cast_return()
+  end
+
+  defp consume_cmd(cmd = %C.LookAt{}, _state, _instance_key) do
+    IO.puts cmd.angle
+    cast_return()
   end
 
   defp consume_cmd("MOVE", state, instance_key) do
@@ -124,7 +134,7 @@ defmodule Lykan.Puppeteer.Player do
   end
 
   defp consume_cmd("LEFT", state, instance_key) do
-    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, :left)
+    Lykan.System.Physics.puppet_changes_dir(instance_key, state.puppet, Math.pi)
 
     cast_return()
   end
@@ -141,7 +151,7 @@ defmodule Lykan.Puppeteer.Player do
     cast_return()
   end
 
-  defp consume_cmd(cmd, _state, _instance_key) do
+  defp consume_cmd(_cmd, _state, _instance_key) do
     # unknown command, we bail and do nothing for now
 
     cast_return()

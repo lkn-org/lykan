@@ -38,9 +38,9 @@
   (let* ((tmx-file (concatenate 'string *maps_dir* map-key ".tmx"))
          (map-layer (make-instance 'fairy/tiled:tile-map :path tmx-file)))
     (setf (fairy:get-child app :game-scene) map-layer))
-  (setf (fairy:sort-with (get-objects-layer app))
-        (lambda (p1 p2)
-          (> (gamekit:y (fairy:origin p1)) (gamekit:y (fairy:origin p2))))))
+   (setf (fairy:sort-with (get-objects-layer app))
+         (lambda (p1 p2)
+           (> (gamekit:y (fairy:origin p1)) (gamekit:y (fairy:origin p2))))))
 
 (defmethod get-objects-layer ((app client))
   (fairy/tiled:get-map-layer (fairy:get-child app :game-scene) "objects"))
@@ -55,9 +55,10 @@
 (defmethod attribute-puppet ((app client) key)
   (setf (main-puppet app) key))
 
-(defmethod add-puppet ((app client) key x y)
+(defmethod add-puppet ((app client) key x y dir)
   (let ((puppet (new-puppet "../example/assets/tilesets/character.tsx"
                             x y)))
+    (changes-direction puppet dir)
     (fairy:add-child (get-objects-layer app)
                      puppet
                      :with-key key))
@@ -101,7 +102,7 @@
     (force-cursor app vx vy)))
 
 (defun get-angle (x y)
-  (atan x y))
+  (+ (- (atan x y)) (/ pi 2)))
 
 (defmethod force-cursor ((app client) x y)
   (let* ((cursor (gamekit:vec2 x y))
@@ -138,23 +139,17 @@
 (defmethod set-direction ((app client) dir)
   (let ((already-moving? (current-direction (keyboard app))))
     (add-direction (keyboard app) dir)
-    (wsd:send-text (socket app) (cond
-                                  ((eq dir :up) "UP")
-                                  ((eq dir :down) "DOWN")
-                                  ((eq dir :right) "RIGHT")
-                                  ((eq dir :LEFT) "LEFT")))
+    (wsd:send-text (socket app)
+                   (command-set-direction (current-direction-angle (keyboard app))))
     (when (not already-moving?)
       (wsd:send-text (socket app) "MOVE"))))
 
 (defmethod unset-direction ((app client) dir)
   (remove-direction (keyboard app) dir)
-  (let ((dir (current-direction (keyboard app))))
-    (if dir
-        (wsd:send-text (socket app) (cond
-                                      ((eq dir :up) "UP")
-                                      ((eq dir :down) "DOWN")
-                                      ((eq dir :right) "RIGHT")
-                                      ((eq dir :LEFT) "LEFT")))
+  (let ((dir-angle (current-direction-angle (keyboard app))))
+    (if dir-angle
+        (wsd:send-text (socket app)
+                       (command-set-direction dir-angle))
         (wsd:send-text (socket app) "STOP"))))
 
 (defmethod bind-direction ((app client) key dir)

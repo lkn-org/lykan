@@ -31,6 +31,7 @@ defmodule Lykan.Mixfile do
       {:lkn_physics, path: "../../lkn-physics"},
       {:lkn_prelude, "~> 0.1.2"},
       {:beacon, "~> 1.1"},
+      {:math, "~> 0.3"},
       {:socket, "~> 0.3"},
       {:poison, "~> 3.1.0"},
       {:postgrex, "~> 0.13"},

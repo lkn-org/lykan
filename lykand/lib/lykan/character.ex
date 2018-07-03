@@ -19,37 +19,40 @@ defpuppet Lykan.Character do
       {{box, vec}, state}
     end
   end
+
   defmodule Body do
     use Lykan.System.Physics.Body
 
     def init_state(_key) do
-      {:ok, :down}
+      {:ok, nil}
     end
 
-    def get_position(key, dir) do
+    def get_position(key, nil) do
       Option.some(x) = read(key, :x)
       Option.some(y) = read(key, :y)
 
-      {Vector.new(x, y), dir}
+      {Vector.new(x, y), nil}
     end
 
-    def get_box(_key, dir) do
-      {Box.new(24, 24), dir}
+    def get_box(_key, nil) do
+      {Box.new(24, 24), nil}
     end
 
-    def set_position(key, pos, dir) do
+    def set_position(key, pos, nil) do
       write(key, :x, pos.x)
       write(key, :y, pos.y)
 
-      dir
+      nil
     end
 
-    def get_direction(_key, dir) do
-      {dir, dir}
+    def get_direction(key, nil) do
+      Option.some(dir) = read(key, :direction)
+      {dir, nil}
     end
 
-    def set_direction(_key, dir, _) do
-      dir
+    def set_direction(key, dir, _) do
+      write(key, :direction, dir)
+      nil
     end
   end
 
@@ -82,6 +85,8 @@ defpuppet Lykan.Character do
       :color => "black",
       :x => 50,
       :y => 50,
+      :direction => Math.pi / 2,
+      :look_at => Math.pi / 2,
     }
   end
 

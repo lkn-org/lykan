@@ -17,21 +17,25 @@
      (jsown:do-json-keys (key puppet-desc) puppets
                          (add-puppet app key
                                      (jsown:val puppet-desc "x")
-                                     (jsown:val puppet-desc "y"))))))
+                                     (jsown:val puppet-desc "y")
+                                     (jsown:val puppet-desc "direction"))))))
 
 ;; PUPPET ENTERS
 (defun handle-puppet-enters (message app)
   (in-game-loop
    (let* ((key (jsown:val message "puppet_key"))
           (digest (jsown:val message "digest")))
-     (add-puppet app key (jsown:val digest "x") (jsown:val digest "y")))))
+     (add-puppet app key
+                 (jsown:val digest "x")
+                 (jsown:val digest "y")
+                 (jsown:val digest "direction")))))
 
 ;; PUPPET MOVES
 (defun handle-puppet-moves (message app)
   (in-game-loop
-   (let* ((key (jsown:val message "puppet_key"))
-          (position (jsown:val message "position")))
-     (puppet-moves app key (jsown:val position "x") (jsown:val position "y")))))
+    (let* ((key (jsown:val message "puppet_key"))
+           (position (jsown:val message "position")))
+      (puppet-moves app key (jsown:val position "x") (jsown:val position "y")))))
 
 
 ;; PUPPET LEAVES
@@ -49,15 +53,9 @@
 ;; PUPPET DIRECTION
 (defun handle-puppet-direction (message app)
   (in-game-loop
-   (let* ((str-dir (jsown:val message "direction"))
-          (dir (cond
-                 ((string= str-dir "down") :down)
-                 ((string= str-dir "up") :up)
-                 ((string= str-dir "right") :right)
-                 ((string= str-dir "left") :left))))
      (puppet-changes-direction app
                                (jsown:val message "puppet_key")
-                               dir))))
+                               (jsown:val message "direction"))))
 
 ;; PUPPET STARTS ATTACKING
 (defun handle-puppet-attacks (message app)

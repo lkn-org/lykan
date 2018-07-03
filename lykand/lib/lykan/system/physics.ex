@@ -230,12 +230,10 @@ defsystem Lykan.System.Physics do
       dir = Body.get_direction(puppet_key)
 
       {vec, col} =
-        Physics.World.move(state.world, puppet_key, case dir do
-                                                      :up -> Vector.new(0, 8)
-                                                      :down -> Vector.new(0, -8)
-                                                      :right -> Vector.new(8, 0)
-                                                      :left -> Vector.new(-8, 0)
-                                                    end)
+        Physics.World.move(
+          state.world,
+          puppet_key,
+          Vector.from_polar(8, dir))
 
       col = handle_collision(state, puppet_key, col)
 
