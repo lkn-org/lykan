@@ -35,7 +35,7 @@
     (fairy:add-child app ui :with-key :ui)))
 
 (defmethod init-map ((app client) map-key)
-  (let* ((tmx-file (concatenate 'string *maps_dir* map-key ".tmx"))
+  (let* ((tmx-file (concatenate 'string *maps-dir* map-key ".tmx"))
          (map-layer (make-instance 'fairy/tiled:tile-map :path tmx-file)))
     (setf (fairy:get-child app :game-scene) map-layer))
    (setf (fairy:sort-with (get-objects-layer app))
@@ -56,7 +56,7 @@
   (setf (main-puppet app) key))
 
 (defmethod add-puppet ((app client) key x y dir)
-  (let ((puppet (new-puppet "../example/assets/tilesets/character.tsx"
+  (let ((puppet (new-puppet "character.tsx"
                             x y)))
     (changes-direction puppet dir)
     (fairy:add-child (get-objects-layer app)

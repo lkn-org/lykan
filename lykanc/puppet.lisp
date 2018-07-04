@@ -8,12 +8,12 @@
    (attacking :initform nil
               :accessor attacking?)))
 
-(defun new-puppet (path-tileset x y)
+(defun new-puppet (tileset-name x y)
   (let ((layer (make-instance 'puppet
                              :origin (gamekit:vec2 x y)))
         (tile (make-instance 'fairy/tiled:tile
                              :current 19
-                             :path path-tileset)))
+                             :path (tileset-path tileset-name))))
     (fairy:add-child layer tile :with-key :character)
     layer))
 
