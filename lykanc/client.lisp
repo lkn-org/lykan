@@ -63,7 +63,13 @@
                      puppet
                      :with-key key))
   (when (string= (main-puppet app) key)
-    (setf (map-ready? app) t)))
+    (setf (map-ready? app) t)
+    (let ((current-dir (current-direction-angle (keyboard app))))
+      (when current-dir ; the user wants to go somewhere
+        (wsd:send-text (socket app)
+                       (command-set-direction current-dir))
+        (wsd:send-text (socket app)
+                       "MOVE")))))
 
 (defmethod puppet-starts-moving ((app client) key)
   (starts-moving (get-puppet app key)))
