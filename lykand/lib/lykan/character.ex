@@ -54,6 +54,11 @@ defpuppet Lykan.Character do
       write(key, :direction, dir)
       nil
     end
+
+    def looks_at(key, dir, _) do
+      write(key, :look_at, dir)
+      nil
+    end
   end
 
   defmodule Appearance do

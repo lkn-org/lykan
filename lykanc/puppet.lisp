@@ -58,7 +58,6 @@
 
 (defmethod hurted ((p puppet))
   (let* ((h (fairy:height p))
-         (w (fairy:width p))
          (damages (make-instance 'fairy:text
                                  :value "Hit!"
                                  :font (gamekit:make-font :lykanc-font 10)
@@ -86,11 +85,7 @@
 (defmethod fairy:height ((p puppet))
   (fairy:height (fairy:get-child p :character)))
 
-(defmethod changes-direction ((p puppet) angle)
-  (let ((dir (get-dir angle)))
-    (when (not (eq (direction p) dir))
-      (setf (direction p) dir)
-      (update-animation p))))
+(defmethod changes-direction ((p puppet) angle) ())
 
 (defun get-dir (angle)
   (cond
@@ -101,4 +96,7 @@
     (t :left)))
 
 (defmethod look-at ((p puppet) angle)
-  (changes-direction p angle))
+  (let ((dir (get-dir angle)))
+    (when (not (eq (direction p) dir))
+      (setf (direction p) dir)
+      (update-animation p))))

@@ -98,8 +98,8 @@ defmodule Lykan.Puppeteer.Player do
     cast_return()
   end
 
-  defp consume_cmd(cmd = %C.LookAt{}, _state, _instance_key) do
-    IO.puts cmd.angle
+  defp consume_cmd(cmd = %C.LookAt{}, state, instance_key) do
+    Lykan.System.Physics.puppet_looks_at(instance_key, state.puppet, cmd.angle)
     cast_return()
   end
 

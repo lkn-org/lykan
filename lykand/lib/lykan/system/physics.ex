@@ -39,6 +39,8 @@ defsystem Lykan.System.Physics do
     @call get_direction() :: Lykan.System.Physics.direction
     @cast set_direction(dir :: Lykan.System.Physics.direction)
 
+    @cast looks_at(dir :: Lykan.System.Physics.direction)
+
     @call get_position() :: Vector.t
     @cast set_position(pos :: Vector.t)
 
@@ -100,6 +102,15 @@ defsystem Lykan.System.Physics do
       :puppet_key,
       :map,
       :entry_point,
+    ]
+  end
+
+  defmessage PuppetLooksAt do
+    opcode "PUPPET_LOOKS_AT"
+
+    content [
+      :puppet_key,
+      :direction,
     ]
   end
 
@@ -207,6 +218,14 @@ defsystem Lykan.System.Physics do
     Body.set_direction(puppet_key, dir)
 
     notify(&Lykan.Puppeteer.notify(&1, PuppetChangesDirection.craft(puppet_key, dir)))
+
+    cast_return()
+  end
+
+  cast puppet_looks_at(puppet_key :: Lkn.Core.Puppet.k, dir :: direction) do
+    Body.looks_at(puppet_key, dir)
+
+    notify(&Lykan.Puppeteer.notify(&1, PuppetLooksAt.craft(puppet_key, dir)))
 
     cast_return()
   end

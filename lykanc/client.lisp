@@ -58,7 +58,7 @@
 (defmethod add-puppet ((app client) key x y dir)
   (let ((puppet (new-puppet "character.tsx"
                             x y)))
-    (changes-direction puppet dir)
+    (look-at puppet dir)
     (fairy:add-child (get-objects-layer app)
                      puppet
                      :with-key key))
@@ -79,6 +79,9 @@
 
 (defmethod puppet-changes-direction ((app client) key dir)
   (changes-direction (get-puppet app key) dir))
+
+(defmethod puppet-looks-at ((app client) key dir)
+  (look-at (get-puppet app key) dir))
 
 (defmethod puppet-hurted ((app client) key)
   (hurted (get-puppet app key)))
@@ -103,25 +106,26 @@
   (gamekit:y (fairy:origin (fairy:get-child (fairy:get-child app :ui) :cursor))))
 
 (defmethod update-cursor ((app client) dx dy)
-  (let ((vx (min (max 0 (+ (get-cursor-x app) dx)) *viewport-width*))
-        (vy (min (max 0 (+ (get-cursor-y app) dy)) *viewport-height*)))
+  (let* ((dx (* dx *mouse-sensibility*))
+         (dy (* dy *mouse-sensibility*))
+         (vx (min (max 0 (+ (get-cursor-x app) dx)) *viewport-width*))
+         (vy (min (max 0 (+ (get-cursor-y app) dy)) *viewport-height*)))
     (force-cursor app vx vy)))
 
-(defun get-angle (x y)
-  (+ (- (atan x y)) (/ pi 2)))
+(defun get-angle (vec)
+  (+ (- (atan (gamekit:x vec) (gamekit:y vec))) (/ pi 2)))
 
 (defmethod force-cursor ((app client) x y)
   (let* ((cursor (gamekit:vec2 x y))
          (center (gamekit:vec2 (/ *viewport-width* 2)
                                (/ *viewport-height* 2)))
          (dir-vec (gamekit:subt cursor center))
-         (alpha (get-angle (gamekit:x dir-vec)
-                           (gamekit:y dir-vec))))
+         (alpha (get-angle dir-vec)))
     (when (map-ready? app)
-      (look-at (get-puppet app (main-puppet app)) alpha))
-    (fairy:goto (fairy:get-child (fairy:get-child app :ui) :cursor)
-                cursor
-                200)))
+      (wsd:send-text (socket app)
+                     (command-look-at alpha)))
+    (setf (fairy:origin (fairy:get-child (fairy:get-child app :ui) :cursor))
+          cursor)))
 
 (defmethod update-camera ((app client))
   (when (map-ready? app)

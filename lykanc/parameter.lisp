@@ -4,6 +4,7 @@
 (defparameter *viewport-height* 240)
 (defparameter *scale* 2)
 (defparameter *cursor-size* 10)
+(defparameter *mouse-sensibility* 0.5)
 (defparameter *server-url* "ws://localhost:4000")
 (defparameter *lykan-assets-dir* (uiop:getenv "LYKAN_ASSETS_DIR"))
 

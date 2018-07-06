@@ -18,7 +18,7 @@
                          (add-puppet app key
                                      (jsown:val puppet-desc "x")
                                      (jsown:val puppet-desc "y")
-                                     (jsown:val puppet-desc "direction"))))))
+                                     (jsown:val puppet-desc "look_at"))))))
 
 ;; PUPPET ENTERS
 (defun handle-puppet-enters (message app)
@@ -28,7 +28,7 @@
      (add-puppet app key
                  (jsown:val digest "x")
                  (jsown:val digest "y")
-                 (jsown:val digest "direction")))))
+                 (jsown:val digest "look_at")))))
 
 ;; PUPPET MOVES
 (defun handle-puppet-moves (message app)
@@ -56,6 +56,14 @@
      (puppet-changes-direction app
                                (jsown:val message "puppet_key")
                                (jsown:val message "direction"))))
+
+;; PUPPET LOOKS AT
+(defun handle-puppet-looks-at (message app)
+  (print "looks at")
+  (in-game-loop
+    (puppet-looks-at app
+                     (jsown:val message "puppet_key")
+                     (jsown:val message "direction"))))
 
 ;; PUPPET STARTS ATTACKING
 (defun handle-puppet-attacks (message app)
@@ -88,6 +96,7 @@
       ((string= opcode "PUPPET_STOPS") (handle-puppet-stops cmd app))
       ((string= opcode "PUPPET_LEAVES") (handle-puppet-leaves cmd app))
       ((string= opcode "PUPPET_DIRECTION") (handle-puppet-direction cmd app))
+      ((string= opcode "PUPPET_LOOKS_AT") (handle-puppet-looks-at cmd app))
       ((string= opcode "PUPPET_STARTS_ATTACKING") (handle-puppet-attacks cmd app))
       ((string= opcode "PUPPET_STOPS_ATTACKING") (handle-puppet-stops-attack cmd app))
       ((string= opcode "PUPPET_HURTED") (handle-puppet-hurted cmd app))
